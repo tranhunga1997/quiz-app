@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 
-export function createTestDb(): { prisma: PrismaClient; cleanup: () => void } {
+export function createTestDb(): { prisma: PrismaClient; cleanup: () => Promise<void> } {
   const dbFile = path.join(process.cwd(), `test-${randomUUID()}.db`);
   const url = `file:${dbFile}`;
 
