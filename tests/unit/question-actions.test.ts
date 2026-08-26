@@ -15,7 +15,7 @@ describe('question-actions', () => {
       { text: 'C', isCorrect: false },
       { text: 'D', isCorrect: false },
     ],
-  } as const;
+  };
 
   it('addQuestionCore creates a SINGLE-type question with 4 options', async () => {
     const db = createTestDb();
