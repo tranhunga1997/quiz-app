@@ -52,7 +52,7 @@ export function QuizRunner({
               key={n}
               type="button"
               onClick={() => handleStart(n)}
-              className="rounded border border-gray-300 px-4 py-2 hover:border-blue-500"
+              className="rounded border border-gray-300 px-4 py-2 transition active:scale-[0.97] hover:border-blue-500"
             >
               {n} câu
             </button>
@@ -60,7 +60,7 @@ export function QuizRunner({
           <button
             type="button"
             onClick={() => handleStart('all')}
-            className="rounded border border-gray-300 px-4 py-2 hover:border-blue-500"
+            className="rounded border border-gray-300 px-4 py-2 transition active:scale-[0.97] hover:border-blue-500"
           >
             Tất cả ({totalAvailable})
           </button>
@@ -154,7 +154,7 @@ export function QuizRunner({
                 type="button"
                 disabled={phase === 'feedback'}
                 onClick={() => toggleOption(opt.id)}
-                className={`block w-full rounded border px-3 py-2 text-left transition-colors duration-300 ${colorClass}`}
+                className={`block w-full rounded border px-3 py-2 text-left transition duration-300 active:scale-[0.97] ${colorClass}`}
               >
                 {opt.text}
                 {phase === 'feedback' && isCorrect && ' ✓'}
@@ -175,13 +175,17 @@ export function QuizRunner({
             type="button"
             disabled={selected.length === 0 || isSubmittingAnswer}
             onClick={handleAnswer}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97] disabled:opacity-50"
           >
             Kiểm tra
           </button>
         )}
         {phase === 'feedback' && (
-          <button type="button" onClick={handleNext} className="rounded bg-blue-600 px-4 py-2 text-white">
+          <button
+            type="button"
+            onClick={handleNext}
+            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97]"
+          >
             {index + 1 >= questions.length ? 'Xem kết quả' : 'Câu tiếp theo →'}
           </button>
         )}

@@ -111,7 +111,7 @@ export function ImportForm() {
             type="button"
             disabled={preview.validRows.length === 0 || submitting || !deckName.trim()}
             onClick={handleConfirm}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97] disabled:opacity-50"
           >
             {submitting ? 'Đang import...' : `Import ${preview.validRows.length} câu hợp lệ`}
           </button>

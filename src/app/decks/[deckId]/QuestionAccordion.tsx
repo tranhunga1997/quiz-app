@@ -86,7 +86,7 @@ export function QuestionAccordion({
       <button
         type="button"
         onClick={openNew}
-        className="mb-3 rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
+        className="mb-3 rounded border border-gray-300 px-3 py-1.5 text-sm transition active:scale-[0.97] hover:bg-gray-50"
       >
         + Thêm câu hỏi
       </button>
@@ -97,38 +97,52 @@ export function QuestionAccordion({
             <button
               type="button"
               onClick={() => (openId === q.id ? setOpenId(null) : openExisting(q))}
-              className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-gray-50"
+              className="flex w-full items-center justify-between px-3 py-2 text-left transition active:scale-[0.97] hover:bg-gray-50"
             >
               <span>
                 {i + 1}. {q.text}
               </span>
               <span>{openId === q.id ? '▾' : '▸'}</span>
             </button>
-            {openId === q.id && (
+            <div
+              className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                openId === q.id ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+              }`}
+            >
+              <div className="overflow-hidden">
+                {openId === q.id && (
+                  <QuestionEditForm
+                    edit={edit}
+                    setEdit={setEdit}
+                    toggleCorrect={toggleCorrect}
+                    onSave={handleSave}
+                    onDelete={() => handleDelete(q.id)}
+                    onCancel={() => setOpenId(null)}
+                    error={saveError}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div
+          className={`grid border-t transition-[grid-template-rows] duration-200 ease-out ${
+            openId === 'new' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr] border-t-0'
+          }`}
+        >
+          <div className="overflow-hidden">
+            {openId === 'new' && (
               <QuestionEditForm
                 edit={edit}
                 setEdit={setEdit}
                 toggleCorrect={toggleCorrect}
                 onSave={handleSave}
-                onDelete={() => handleDelete(q.id)}
                 onCancel={() => setOpenId(null)}
                 error={saveError}
               />
             )}
           </div>
-        ))}
-        {openId === 'new' && (
-          <div className="border-t">
-            <QuestionEditForm
-              edit={edit}
-              setEdit={setEdit}
-              toggleCorrect={toggleCorrect}
-              onSave={handleSave}
-              onCancel={() => setOpenId(null)}
-              error={saveError}
-            />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -184,14 +198,26 @@ function QuestionEditForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex justify-end gap-2 pt-1">
         {onDelete && (
-          <button type="button" onClick={onDelete} className="rounded px-3 py-1.5 text-sm text-red-600">
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded px-3 py-1.5 text-sm text-red-600 transition active:scale-[0.97]"
+          >
             🗑️ Xoá
           </button>
         )}
-        <button type="button" onClick={onCancel} className="rounded px-3 py-1.5 text-sm text-gray-600">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded px-3 py-1.5 text-sm text-gray-600 transition active:scale-[0.97]"
+        >
           Huỷ
         </button>
-        <button type="button" onClick={onSave} className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white">
+        <button
+          type="button"
+          onClick={onSave}
+          className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white transition active:scale-[0.97]"
+        >
           Lưu
         </button>
       </div>

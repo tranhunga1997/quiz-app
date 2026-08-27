@@ -46,7 +46,11 @@ export function DeckHeader({
       ) : (
         <h1 className="text-xl font-semibold">
           📘 {name} — {questionCount} câu{' '}
-          <button type="button" onClick={() => setEditing(true)} className="text-sm text-gray-400 hover:text-gray-700">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="text-sm text-gray-400 transition active:scale-[0.97] hover:text-gray-700"
+          >
             ✏️
           </button>
         </h1>
@@ -61,7 +65,7 @@ export function DeckHeader({
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm text-red-600 transition active:scale-[0.97] hover:bg-red-50"
         >
           🗑️ Xoá bộ đề
         </button>
