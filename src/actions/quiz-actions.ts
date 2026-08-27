@@ -1,6 +1,7 @@
 'use server';
 
 import type { PrismaClient } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '../lib/db';
 import { shuffleArray } from '../lib/shuffle';
 import { isAnswerCorrect, calculateScorePercent } from '../lib/scoring';
@@ -51,9 +52,20 @@ export async function startQuizSessionCore(
     include: { options: { orderBy: { order: 'asc' } } },
   });
 
-  let selected = shuffleArray(questions);
-  if (count !== 'all') {
-    selected = selected.slice(0, count);
+  let selected;
+  if (mode === 'REVIEW' && questionIds) {
+    // Preserve getReviewCandidates' priority order (wrongCount desc, lastWrongAt desc) when
+    // picking which questions to include — findMany does not guarantee that order. Only the
+    // final presentation order of the chosen subset gets shuffled below.
+    const byId = new Map(questions.map((q) => [q.id, q]));
+    const ranked = questionIds.map((id) => byId.get(id)).filter((q): q is (typeof questions)[number] => q != null);
+    const limited = count === 'all' ? ranked : ranked.slice(0, count);
+    selected = shuffleArray(limited);
+  } else {
+    selected = shuffleArray(questions);
+    if (count !== 'all') {
+      selected = selected.slice(0, count);
+    }
   }
 
   const attempt = await client.attempt.create({
@@ -147,5 +159,7 @@ export async function submitAnswer(
 }
 
 export async function finishQuizSession(attemptId: string): Promise<FinishResult> {
-  return finishQuizSessionCore(prisma, attemptId);
+  const result = await finishQuizSessionCore(prisma, attemptId);
+  revalidatePath('/');
+  return result;
 }

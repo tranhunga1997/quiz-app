@@ -135,4 +135,47 @@ describe('quiz-actions', () => {
 
     expect(review.questions.map((q) => q.id)).toEqual([q2.id]);
   });
+
+  it('a REVIEW session with a numeric count picks the top-N highest-ranked questions, not a random sample', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+
+    async function makeQuestion(label: string) {
+      return db.prisma.question.create({
+        data: {
+          deckId: deck.id,
+          text: label,
+          type: 'SINGLE',
+          options: { create: [{ text: 'A', isCorrect: true, order: 1 }] },
+        },
+      });
+    }
+
+    async function recordWrongAnswer(questionId: string, finishedAt: Date) {
+      const attempt = await db.prisma.attempt.create({
+        data: { deckId: deck.id, mode: 'NORMAL', totalQuestions: 1, correctCount: 0, finishedAt },
+      });
+      await db.prisma.attemptAnswer.create({
+        data: { attemptId: attempt.id, questionId, selectedOptionIds: '[]', isCorrect: false },
+      });
+    }
+
+    // Ranked (per getReviewCandidates: wrongCount desc, lastWrongAt desc) from most to
+    // least eligible for review:
+    const qManyRecent = await makeQuestion('many-recent'); // wrongCount 2, most recent
+    const qFewRecent = await makeQuestion('few-recent'); // wrongCount 1, more recent than qFewOld
+    const qFewOld = await makeQuestion('few-old'); // wrongCount 1, oldest
+
+    await recordWrongAnswer(qFewOld.id, new Date('2026-01-01'));
+    await recordWrongAnswer(qManyRecent.id, new Date('2026-01-01'));
+    await recordWrongAnswer(qManyRecent.id, new Date('2026-01-05'));
+    await recordWrongAnswer(qFewRecent.id, new Date('2026-01-10'));
+
+    // Eligible pool has 3 questions; request only the top 2.
+    const review = await startQuizSessionCore(db.prisma, deck.id, 2, 'REVIEW');
+
+    expect(review.questions).toHaveLength(2);
+    expect(new Set(review.questions.map((q) => q.id))).toEqual(new Set([qManyRecent.id, qFewRecent.id]));
+  });
 });
