@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { listDecksWithStats } from '@/lib/decks';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const decks = await listDecksWithStats();
   const decksDue = decks.filter((d) => d.reviewDueCount > 0);
