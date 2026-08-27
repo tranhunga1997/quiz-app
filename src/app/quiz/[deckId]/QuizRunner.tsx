@@ -27,6 +27,7 @@ export function QuizRunner({
   const [selected, setSelected] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<{ correctOptionIds: string[]; explanation: string | null } | null>(null);
   const [phase, setPhase] = useState<Phase>('config');
+  const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
 
   const countOptions = [5, 10, 20].filter((n) => n < totalAvailable);
 
@@ -80,10 +81,15 @@ export function QuizRunner({
   }
 
   async function handleAnswer() {
-    if (!attemptId || !current || selected.length === 0) return;
-    const result = await submitAnswer(attemptId, current.id, selected);
-    setFeedback({ correctOptionIds: result.correctOptionIds, explanation: result.explanation });
-    setPhase('feedback');
+    if (!attemptId || !current || selected.length === 0 || isSubmittingAnswer) return;
+    setIsSubmittingAnswer(true);
+    try {
+      const result = await submitAnswer(attemptId, current.id, selected);
+      setFeedback({ correctOptionIds: result.correctOptionIds, explanation: result.explanation });
+      setPhase('feedback');
+    } finally {
+      setIsSubmittingAnswer(false);
+    }
   }
 
   async function handleNext() {
@@ -124,7 +130,7 @@ export function QuizRunner({
         className={
           phase === 'transitioning'
             ? 'translate-x-[-16px] opacity-0 transition-all duration-200 ease-in'
-            : 'translate-x-0 opacity-100 transition-all duration-200 ease-out'
+            : 'translate-x-0 opacity-100 animate-question-slide-in'
         }
       >
         <h2 className="mb-4 text-lg font-medium">{current.text}</h2>
@@ -165,7 +171,7 @@ export function QuizRunner({
         {phase === 'answering' && (
           <button
             type="button"
-            disabled={selected.length === 0}
+            disabled={selected.length === 0 || isSubmittingAnswer}
             onClick={handleAnswer}
             className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
           >

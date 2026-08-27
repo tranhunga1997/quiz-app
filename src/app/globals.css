@@ -13,3 +13,18 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+@keyframes question-slide-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-question-slide-in {
+  animation: question-slide-in 200ms ease-out;
+}
