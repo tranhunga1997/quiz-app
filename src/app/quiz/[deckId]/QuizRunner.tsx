@@ -118,7 +118,9 @@ export function QuizRunner({
       <div className="mb-4 h-1.5 w-full overflow-hidden rounded bg-gray-200">
         <div
           className="h-full bg-blue-600 transition-all duration-300 ease-out"
-          style={{ width: `${((index + (phase === 'feedback' ? 1 : 0)) / questions.length) * 100}%` }}
+          style={{
+            width: `${((index + (phase === 'feedback' || phase === 'transitioning' ? 1 : 0)) / questions.length) * 100}%`,
+          }}
         />
       </div>
       <p className="mb-3 text-sm text-gray-500">
