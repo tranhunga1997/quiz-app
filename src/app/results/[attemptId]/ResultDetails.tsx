@@ -25,7 +25,7 @@ export function ResultDetails({ missed }: { missed: Missed[] }) {
           {missed.map((m, i) => (
             <div key={i} className="rounded border border-red-200 bg-red-50 p-3">
               <p className="font-medium">{m.questionText}</p>
-              <p className="text-red-700">Bạn chọn: {m.yourAnswerText.join(', ') || '(không chọn)'}</p>
+              <p className="text-red-700">Bạn chọn: {m.yourAnswerText.filter(Boolean).join(', ') || '(không chọn)'}</p>
               <p className="text-green-700">Đáp án đúng: {m.correctAnswerText.join(', ')}</p>
             </div>
           ))}
