@@ -33,15 +33,18 @@ export function QuestionAccordion({
   const router = useRouter();
   const [openId, setOpenId] = useState<string | 'new' | null>(null);
   const [edit, setEdit] = useState<EditState>(toEditState());
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function openExisting(q: QuestionWithOptions) {
     setOpenId(q.id);
     setEdit(toEditState(q));
+    setSaveError(null);
   }
 
   function openNew() {
     setOpenId('new');
     setEdit(toEditState());
+    setSaveError(null);
   }
 
   function toggleCorrect(index: number) {
@@ -57,11 +60,17 @@ export function QuestionAccordion({
       explanation: edit.explanation.trim() === '' ? null : edit.explanation,
       options: edit.options,
     };
-    if (openId === 'new') {
-      await addQuestion(deckId, input);
-    } else if (openId) {
-      await updateQuestion(openId, input);
+    try {
+      if (openId === 'new') {
+        await addQuestion(deckId, input);
+      } else if (openId) {
+        await updateQuestion(openId, input);
+      }
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra');
+      return;
     }
+    setSaveError(null);
     setOpenId(null);
     router.refresh();
   }
@@ -103,6 +112,7 @@ export function QuestionAccordion({
                 onSave={handleSave}
                 onDelete={() => handleDelete(q.id)}
                 onCancel={() => setOpenId(null)}
+                error={saveError}
               />
             )}
           </div>
@@ -115,6 +125,7 @@ export function QuestionAccordion({
               toggleCorrect={toggleCorrect}
               onSave={handleSave}
               onCancel={() => setOpenId(null)}
+              error={saveError}
             />
           </div>
         )}
@@ -130,6 +141,7 @@ function QuestionEditForm({
   onSave,
   onDelete,
   onCancel,
+  error,
 }: {
   edit: EditState;
   setEdit: (updater: (prev: EditState) => EditState) => void;
@@ -137,6 +149,7 @@ function QuestionEditForm({
   onSave: () => void;
   onDelete?: () => void;
   onCancel: () => void;
+  error?: string | null;
 }) {
   return (
     <div className="space-y-2 bg-gray-50 p-4">
@@ -168,6 +181,7 @@ function QuestionEditForm({
         value={edit.explanation}
         onChange={(e) => setEdit((prev) => ({ ...prev, explanation: e.target.value }))}
       />
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex justify-end gap-2 pt-1">
         {onDelete && (
           <button type="button" onClick={onDelete} className="rounded px-3 py-1.5 text-sm text-red-600">
