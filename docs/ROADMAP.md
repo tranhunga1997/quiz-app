@@ -76,11 +76,13 @@ for the review's full reasoning. Roughly ordered by how much they matter:
    or preserve `Option` ids across an edit (update in place instead of
    delete+recreate) when the option count doesn't change.
 
-5. **Four of the spec's animation rules were never implemented**: button
-   press-down scale (~0.97) and the accordion's smooth height transition are
-   both missing — a planning gap (the implementation plan's Global
-   Constraints section only carried forward 3 of the spec's 7 animation
-   rows), not a bug. Cosmetic only.
+5. ~~Four of the spec's animation rules were never implemented~~ **Fixed.**
+   Button press-down scale (`active:scale-[0.97]`, via Tailwind's default
+   `transition` utility so it composes with existing color transitions) and
+   the accordion's smooth height transition (a CSS `grid-template-rows`
+   `0fr↔1fr` transition on an always-mounted wrapper) are now implemented
+   app-wide, both respecting `prefers-reduced-motion`. Verified live via
+   `getComputedStyle` in a real browser, not just read from source.
 
 6. **Minor polish**: the results-screen action row (retry/review/home) has
    no `flex-wrap`, so it can wrap awkwardly on narrow phones; the progress
@@ -139,8 +141,8 @@ If picking up this project again, roughly in order of value-per-effort:
 3. P1: delete-a-single-attempt and search/filter (cheap, clear value).
 4. P1: stats dashboard and CSV export (bigger, but no new architecture
    needed).
-5. Gap #3 (test hardening), #5 (missing animations), #6 (polish) — low
-   urgency, fine to batch into a cleanup pass whenever convenient.
+5. Gap #3 (test hardening), #6 (polish) — low urgency, fine to batch into a
+   cleanup pass whenever convenient. (Gap #5, missing animations, is done.)
 6. Gap #4 (option-id stability across edits) — the trickiest one
    architecturally; worth designing deliberately rather than bolting on,
    since the two real fixes (snapshotting vs. preserving ids) have different
