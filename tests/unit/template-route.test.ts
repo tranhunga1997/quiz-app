@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TEMPLATE_CSV } from '../../src/app/api/template/route';
+import { TEMPLATE_CSV } from '../../src/lib/csv-template';
 import { parseQuizCsv } from '../../src/lib/csv';
 
 describe('CSV template', () => {
