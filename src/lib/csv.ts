@@ -41,6 +41,16 @@ export function parseQuizCsv(csvText: string): CsvParseResult {
       return;
     }
 
+    const parsedExtra = (raw as { __parsed_extra?: unknown }).__parsed_extra;
+    if (Array.isArray(parsedExtra) && parsedExtra.length > 0) {
+      errors.push({
+        rowNumber,
+        reason:
+          'Cột correct chứa dấu phẩy (,) — chỉ dùng dấu chấm phẩy (;) để phân tách nhiều đáp án đúng',
+      });
+      return;
+    }
+
     const options: string[] = [];
     for (let i = 1; i <= 4; i++) {
       const value = (raw[`option${i}`] ?? '').trim();

@@ -102,6 +102,24 @@ describe('parseQuizCsv', () => {
     expect(result.errors).toEqual([{ rowNumber: 2, reason: 'Thiếu nội dung câu hỏi' }]);
   });
 
+  it('reports a row-level error when the correct column contains a comma instead of a semicolon', () => {
+    // User meant "1 or 2 are correct" and typed a comma (habit) instead of the required ';'
+    // separator. PapaParse splits that comma as an extra CSV field beyond the 6 header
+    // columns, spilling "2" into __parsed_extra — raw.correct ends up as the (validly
+    // single-answer) "1", which must NOT silently import as correctIndexes: [1].
+    const csv = 'question,option1,option2,option3,option4,correct\n' + 'Q?,A,B,C,D,1,2';
+
+    const result = parseQuizCsv(csv);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([
+      {
+        rowNumber: 1,
+        reason: 'Cột correct chứa dấu phẩy (,) — chỉ dùng dấu chấm phẩy (;) để phân tách nhiều đáp án đúng',
+      },
+    ]);
+  });
+
   it('returns a single file-level error when required headers are missing', () => {
     const csv = 'question,option1\nQ?,A';
 
