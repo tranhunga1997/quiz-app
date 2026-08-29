@@ -141,7 +141,7 @@ export function QuizRunner({
           {current.options.map((opt) => {
             const isSelected = selected.includes(opt.id);
             const isCorrect = feedback?.correctOptionIds.includes(opt.id);
-            let stateClass = 'bg-white shadow-card';
+            let stateClass = 'border-2 border-transparent bg-white shadow-card';
             if (phase === 'feedback') {
               if (isCorrect) stateClass = 'border-2 border-success bg-success-bg';
               else if (isSelected) stateClass = 'border-2 border-danger bg-danger-bg';
