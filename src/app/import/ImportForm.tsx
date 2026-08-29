@@ -38,7 +38,7 @@ export function ImportForm() {
   return (
     <div>
       <div
-        className="mb-4 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center"
+        className="mb-4 rounded-card border-2 border-dashed border-accent/25 bg-white p-8 text-center shadow-card"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -46,72 +46,74 @@ export function ImportForm() {
           if (file) handleFile(file);
         }}
       >
-        📄 Kéo thả file .csv vào đây, hoặc{' '}
-        <label className="cursor-pointer underline">
-          chọn file
-          <input
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFile(file);
-            }}
-          />
-        </label>
-        {fileName && <div className="mt-2 text-sm text-gray-500">{fileName}</div>}
+        <span className="text-ink">
+          📄 Kéo thả file .csv vào đây, hoặc{' '}
+          <label className="cursor-pointer font-semibold text-accent underline">
+            chọn file
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+          </label>
+        </span>
+        {fileName && <div className="mt-2 text-sm text-ink-soft">{fileName}</div>}
       </div>
 
-      <a href="/api/template" className="mb-4 inline-block text-sm text-blue-600 underline">
-        Tải file mẫu
+      <a href="/api/template" className="mb-4 inline-block text-sm font-semibold text-accent">
+        📥 Tải file mẫu
       </a>
 
       {preview && (
         <div>
           <input
-            className="mb-3 w-3/5 rounded border border-gray-300 px-3 py-1.5"
+            className="mb-3 w-3/5 rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
             placeholder="Tên bộ đề"
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
           />
 
           <div className="mb-3 flex gap-2 text-sm">
-            <span className="rounded border border-green-600 bg-green-50 px-2 py-1 text-green-700">
+            <span className="rounded-badge bg-success-bg px-2 py-1 font-semibold text-success">
               ✅ {preview.validRows.length} dòng hợp lệ
             </span>
             {preview.errors.length > 0 && (
-              <span className="rounded border border-red-600 bg-red-50 px-2 py-1 text-red-700">
+              <span className="rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger">
                 ⚠️ {preview.errors.length} dòng lỗi
               </span>
             )}
           </div>
 
-          <div className="mb-4 max-h-64 overflow-y-auto rounded border border-gray-200 text-sm">
+          <div className="mb-4 max-h-64 overflow-y-auto rounded-card bg-white shadow-card">
             {preview.validRows.map((row) => (
-              <div key={`ok-${row.rowNumber}`} className="flex justify-between border-b px-3 py-2">
-                <span>
+              <div key={`ok-${row.rowNumber}`} className="flex justify-between border-b border-bg px-3 py-2 text-sm">
+                <span className="text-ink">
                   {row.rowNumber}. {row.question}
                 </span>
-                <span className="text-green-600">✅ OK</span>
+                <span className="font-semibold text-success">✅ OK</span>
               </div>
             ))}
             {preview.errors.map((err) => (
-              <div key={`err-${err.rowNumber}`} className="flex justify-between border-b bg-red-50 px-3 py-2">
-                <span>
+              <div key={`err-${err.rowNumber}`} className="flex justify-between border-b border-bg px-3 py-2 text-sm">
+                <span className="text-ink">
                   Dòng {err.rowNumber}: {err.reason}
                 </span>
-                <span className="text-red-600">⚠️ Lỗi</span>
+                <span className="font-semibold text-danger">⚠️ Lỗi</span>
               </div>
             ))}
           </div>
 
-          {submitError && <p className="mb-3 text-sm text-red-600">{submitError}</p>}
+          {submitError && <p className="mb-3 text-sm text-danger">{submitError}</p>}
 
           <button
             type="button"
             disabled={preview.validRows.length === 0 || submitting || !deckName.trim()}
             onClick={handleConfirm}
-            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97] disabled:opacity-50"
+            className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] disabled:opacity-50"
           >
             {submitting ? 'Đang import...' : `Import ${preview.validRows.length} câu hợp lệ`}
           </button>
