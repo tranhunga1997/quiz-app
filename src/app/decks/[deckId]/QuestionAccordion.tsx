@@ -91,61 +91,63 @@ export function QuestionAccordion({
         + Thêm câu hỏi
       </button>
 
-      <div className="rounded-card bg-white shadow-card">
-        {initialQuestions.map((q, i) => (
-          <div key={q.id} className="border-b border-bg last:border-b-0">
-            <button
-              type="button"
-              onClick={() => (openId === q.id ? setOpenId(null) : openExisting(q))}
-              className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink transition active:scale-[0.97] ${
-                openId === q.id ? 'bg-bg' : ''
-              }`}
-            >
-              <span>
-                {i + 1}. {q.text}
-              </span>
-              <span>{openId === q.id ? '▾' : '▸'}</span>
-            </button>
-            <div
-              className={`grid transition-[grid-template-rows] duration-200 ease-out ${
-                openId === q.id ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-              }`}
-            >
-              <div className="overflow-hidden">
-                {openId === q.id && (
-                  <QuestionEditForm
-                    edit={edit}
-                    setEdit={setEdit}
-                    toggleCorrect={toggleCorrect}
-                    onSave={handleSave}
-                    onDelete={() => handleDelete(q.id)}
-                    onCancel={() => setOpenId(null)}
-                    error={saveError}
-                  />
-                )}
+      {(initialQuestions.length > 0 || openId === 'new') && (
+        <div className="rounded-card bg-white shadow-card">
+          {initialQuestions.map((q, i) => (
+            <div key={q.id} className="border-b border-bg">
+              <button
+                type="button"
+                onClick={() => (openId === q.id ? setOpenId(null) : openExisting(q))}
+                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink transition hover:bg-bg active:scale-[0.97] ${
+                  openId === q.id ? 'bg-bg' : ''
+                }`}
+              >
+                <span>
+                  {i + 1}. {q.text}
+                </span>
+                <span>{openId === q.id ? '▾' : '▸'}</span>
+              </button>
+              <div
+                className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                  openId === q.id ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  {openId === q.id && (
+                    <QuestionEditForm
+                      edit={edit}
+                      setEdit={setEdit}
+                      toggleCorrect={toggleCorrect}
+                      onSave={handleSave}
+                      onDelete={() => handleDelete(q.id)}
+                      onCancel={() => setOpenId(null)}
+                      error={saveError}
+                    />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        <div
-          className={`grid transition-[grid-template-rows] duration-200 ease-out ${
-            openId === 'new' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-          }`}
-        >
-          <div className="overflow-hidden">
-            {openId === 'new' && (
-              <QuestionEditForm
-                edit={edit}
-                setEdit={setEdit}
-                toggleCorrect={toggleCorrect}
-                onSave={handleSave}
-                onCancel={() => setOpenId(null)}
-                error={saveError}
-              />
-            )}
+          ))}
+          <div
+            className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+              openId === 'new' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+            }`}
+          >
+            <div className="overflow-hidden">
+              {openId === 'new' && (
+                <QuestionEditForm
+                  edit={edit}
+                  setEdit={setEdit}
+                  toggleCorrect={toggleCorrect}
+                  onSave={handleSave}
+                  onCancel={() => setOpenId(null)}
+                  error={saveError}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

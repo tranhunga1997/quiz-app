@@ -98,7 +98,7 @@ export function ImportForm() {
               </div>
             ))}
             {preview.errors.map((err) => (
-              <div key={`err-${err.rowNumber}`} className="flex justify-between border-b border-bg px-3 py-2 text-sm">
+              <div key={`err-${err.rowNumber}`} className="flex justify-between border-b border-bg bg-danger-bg px-3 py-2 text-sm">
                 <span className="text-ink">
                   Dòng {err.rowNumber}: {err.reason}
                 </span>
