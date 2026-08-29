@@ -202,7 +202,7 @@ function QuestionEditForm({
         value={edit.explanation}
         onChange={(e) => setEdit((prev) => ({ ...prev, explanation: e.target.value }))}
       />
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <p className="text-sm text-danger-text">{error}</p>}
       <div className="flex justify-end gap-2 pt-1">
         {onDelete && (
           <button

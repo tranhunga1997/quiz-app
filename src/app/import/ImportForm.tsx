@@ -78,11 +78,11 @@ export function ImportForm() {
           />
 
           <div className="mb-3 flex gap-2 text-sm">
-            <span className="rounded-badge bg-success-bg px-2 py-1 font-semibold text-success">
+            <span className="rounded-badge bg-success-bg px-2 py-1 font-semibold text-success-text">
               ✅ {preview.validRows.length} dòng hợp lệ
             </span>
             {preview.errors.length > 0 && (
-              <span className="rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger">
+              <span className="rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger-text">
                 ⚠️ {preview.errors.length} dòng lỗi
               </span>
             )}
@@ -94,7 +94,7 @@ export function ImportForm() {
                 <span className="text-ink">
                   {row.rowNumber}. {row.question}
                 </span>
-                <span className="font-semibold text-success">✅ OK</span>
+                <span className="font-semibold text-success-text">✅ OK</span>
               </div>
             ))}
             {preview.errors.map((err) => (
@@ -102,12 +102,12 @@ export function ImportForm() {
                 <span className="text-ink">
                   Dòng {err.rowNumber}: {err.reason}
                 </span>
-                <span className="font-semibold text-danger">⚠️ Lỗi</span>
+                <span className="font-semibold text-danger-text">⚠️ Lỗi</span>
               </div>
             ))}
           </div>
 
-          {submitError && <p className="mb-3 text-sm text-danger">{submitError}</p>}
+          {submitError && <p className="mb-3 text-sm text-danger-text">{submitError}</p>}
 
           <button
             type="button"

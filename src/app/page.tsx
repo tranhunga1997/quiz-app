@@ -41,7 +41,7 @@ export default async function HomePage() {
 
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Bộ đề của bạn</h2>
       {decks.length === 0 ? (
-        <p className="text-ink-soft">Chưa có bộ đề nào. Import một file CSV để bắt đầu.</p>
+        <p className="text-ink-muted">Chưa có bộ đề nào. Import một file CSV để bắt đầu.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {decks.map((deck, i) => (

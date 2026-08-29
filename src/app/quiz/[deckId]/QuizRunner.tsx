@@ -41,7 +41,7 @@ export function QuizRunner({
 
   if (phase === 'config') {
     if (totalAvailable === 0) {
-      return <p className="text-ink-soft">Không có câu hỏi nào để làm.</p>;
+      return <p className="text-ink-muted">Không có câu hỏi nào để làm.</p>;
     }
     return (
       <div>
@@ -109,8 +109,8 @@ export function QuizRunner({
     }, 200);
   }
 
-  if (phase === 'loading') return <p className="text-ink-soft">Đang tải câu hỏi...</p>;
-  if (questions.length === 0) return <p className="text-ink-soft">Không có câu hỏi nào để ôn tập.</p>;
+  if (phase === 'loading') return <p className="text-ink-muted">Đang tải câu hỏi...</p>;
+  if (questions.length === 0) return <p className="text-ink-muted">Không có câu hỏi nào để ôn tập.</p>;
   if (!current) return null;
 
   return (
@@ -123,7 +123,7 @@ export function QuizRunner({
           }}
         />
       </div>
-      <p className="mb-3 text-sm font-medium text-ink-soft">
+      <p className="mb-3 text-sm font-medium text-ink-muted">
         Câu {index + 1}/{questions.length}
       </p>
 
@@ -173,7 +173,7 @@ export function QuizRunner({
         </div>
 
         {phase === 'feedback' && feedback?.explanation && (
-          <p className="mt-3 rounded-card bg-white p-4 text-sm text-ink-soft shadow-card">💡 {feedback.explanation}</p>
+          <p className="mt-3 rounded-card bg-white p-4 text-sm text-ink-muted shadow-card">💡 {feedback.explanation}</p>
         )}
       </div>
 

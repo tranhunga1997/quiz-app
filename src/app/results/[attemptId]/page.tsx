@@ -49,7 +49,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       <p className="mb-1 text-sm font-semibold text-ink">
         {attempt.correctCount}/{attempt.totalQuestions} đúng
       </p>
-      {timeTaken && <p className="mb-1 text-sm text-ink-soft">⏱ Thời gian: {timeTaken}</p>}
+      {timeTaken && <p className="mb-1 text-sm text-ink-muted">⏱ Thời gian: {timeTaken}</p>}
 
       <ResultDetails missed={missed} />
 

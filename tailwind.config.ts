@@ -13,10 +13,12 @@ const config: Config = {
         ink: {
           DEFAULT: '#1A1A2E',
           soft: '#8A8FA3',
+          muted: '#6B7280',
         },
         success: {
           DEFAULT: '#22C55E',
           bg: '#E8F9EF',
+          text: '#15803D',
         },
         warning: {
           DEFAULT: '#F5A623',
@@ -25,6 +27,7 @@ const config: Config = {
         danger: {
           DEFAULT: '#F4645A',
           bg: '#FDECEC',
+          text: '#C0392F',
         },
       },
       borderRadius: {

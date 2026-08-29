@@ -65,7 +65,7 @@ export function DeckHeader({
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger shadow-card transition active:scale-[0.97]"
+          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition active:scale-[0.97]"
         >
           🗑️ Xoá bộ đề
         </button>

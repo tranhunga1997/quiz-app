@@ -8,7 +8,7 @@ export function ResultDetails({ missed }: { missed: Missed[] }) {
   const [open, setOpen] = useState(false);
 
   if (missed.length === 0) {
-    return <p className="mt-3 text-sm font-medium text-success">🎉 Không có câu nào sai!</p>;
+    return <p className="mt-3 text-sm font-medium text-success-text">🎉 Không có câu nào sai!</p>;
   }
 
   return (
@@ -25,8 +25,8 @@ export function ResultDetails({ missed }: { missed: Missed[] }) {
           {missed.map((m, i) => (
             <div key={i} className="rounded-card bg-danger-bg p-4 shadow-card">
               <p className="font-semibold text-ink">{m.questionText}</p>
-              <p className="text-danger">Bạn chọn: {m.yourAnswerText.filter(Boolean).join(', ') || '(không chọn)'}</p>
-              <p className="text-success">Đáp án đúng: {m.correctAnswerText.join(', ')}</p>
+              <p className="text-danger-text">Bạn chọn: {m.yourAnswerText.filter(Boolean).join(', ') || '(không chọn)'}</p>
+              <p className="text-success-text">Đáp án đúng: {m.correctAnswerText.join(', ')}</p>
             </div>
           ))}
         </div>
