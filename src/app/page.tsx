@@ -25,7 +25,7 @@ export default async function HomePage() {
             <Link
               key={deck.id}
               href={`/quiz/${deck.id}?mode=review`}
-              className="flex items-center justify-between rounded-card bg-gradient-to-br from-accent to-accent-dark p-5 text-white shadow-card transition active:scale-[0.97]"
+              className="flex items-center justify-between rounded-card bg-gradient-to-br from-accent to-accent-dark p-5 text-white shadow-card transition hover:brightness-105 active:scale-[0.97]"
             >
               <div>
                 <div className="text-sm font-bold">🔥 Ôn câu hay sai</div>
@@ -48,7 +48,7 @@ export default async function HomePage() {
             <Link
               key={deck.id}
               href={`/decks/${deck.id}`}
-              className="rounded-card bg-white p-4 shadow-card transition active:scale-[0.97]"
+              className="rounded-card bg-white p-4 shadow-card transition hover:shadow-none active:scale-[0.97]"
             >
               <div
                 className={`mb-2 flex h-10 w-10 items-center justify-center rounded-control text-lg ${

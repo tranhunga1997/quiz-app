@@ -16,7 +16,7 @@ export function ResultDetails({ missed }: { missed: Missed[] }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="mx-auto block rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
+        className="mx-auto block rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
       >
         📋 {open ? 'Ẩn chi tiết' : 'Xem chi tiết từng câu'}
       </button>

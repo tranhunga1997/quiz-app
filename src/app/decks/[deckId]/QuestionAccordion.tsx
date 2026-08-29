@@ -86,7 +86,7 @@ export function QuestionAccordion({
       <button
         type="button"
         onClick={openNew}
-        className="mb-3 rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
+        className="mb-3 rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
       >
         + Thêm câu hỏi
       </button>
@@ -208,7 +208,7 @@ function QuestionEditForm({
           <button
             type="button"
             onClick={onDelete}
-            className="rounded-badge px-3 py-1.5 text-sm font-semibold text-danger transition active:scale-[0.97]"
+            className="rounded-badge px-3 py-1.5 text-sm font-semibold text-danger transition hover:bg-bg active:scale-[0.97]"
           >
             🗑️ Xoá
           </button>
@@ -216,14 +216,14 @@ function QuestionEditForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-badge px-3 py-1.5 text-sm font-semibold text-ink-soft transition active:scale-[0.97]"
+          className="rounded-badge px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-bg active:scale-[0.97]"
         >
           Huỷ
         </button>
         <button
           type="button"
           onClick={onSave}
-          className="rounded-badge bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
+          className="rounded-badge bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           Lưu
         </button>

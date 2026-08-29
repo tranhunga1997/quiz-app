@@ -56,19 +56,19 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Link
           href={`/quiz/${attempt.deckId}?mode=normal`}
-          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
+          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
           🔁 Làm lại
         </Link>
         <Link
           href={`/quiz/${attempt.deckId}?mode=review`}
-          className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
+          className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           🔥 Ôn câu sai
         </Link>
         <Link
           href="/"
-          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
+          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
           🏠 Trang chủ
         </Link>

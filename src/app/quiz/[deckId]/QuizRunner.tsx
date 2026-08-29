@@ -52,7 +52,7 @@ export function QuizRunner({
               key={n}
               type="button"
               onClick={() => handleStart(n)}
-              className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
+              className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
             >
               {n} câu
             </button>
@@ -154,7 +154,9 @@ export function QuizRunner({
                 type="button"
                 disabled={phase === 'feedback'}
                 onClick={() => toggleOption(opt.id)}
-                className={`flex w-full items-center justify-between rounded-control px-4 py-3 text-left text-sm font-medium text-ink transition duration-300 active:scale-[0.97] ${stateClass}`}
+                className={`flex w-full items-center justify-between rounded-control px-4 py-3 text-left text-sm font-medium text-ink transition duration-300 active:scale-[0.97] ${
+                  phase !== 'feedback' ? 'hover:bg-bg' : ''
+                } ${stateClass}`}
               >
                 <span>{opt.text}</span>
                 {phase === 'feedback' && isCorrect && (
@@ -183,7 +185,7 @@ export function QuizRunner({
             type="button"
             disabled={selected.length === 0 || isSubmittingAnswer}
             onClick={handleAnswer}
-            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] disabled:opacity-50"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent"
           >
             Kiểm tra
           </button>
@@ -192,7 +194,7 @@ export function QuizRunner({
           <button
             type="button"
             onClick={handleNext}
-            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
           >
             {index + 1 >= questions.length ? 'Xem kết quả' : 'Câu tiếp theo →'}
           </button>

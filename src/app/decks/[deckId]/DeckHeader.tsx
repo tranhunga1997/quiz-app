@@ -58,14 +58,14 @@ export function DeckHeader({
       <div className="flex gap-2">
         <Link
           href={`/quiz/${deckId}?mode=normal`}
-          className="rounded-control bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
+          className="rounded-control bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           ▶ Làm bài
         </Link>
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition active:scale-[0.97]"
+          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
           🗑️ Xoá bộ đề
         </button>

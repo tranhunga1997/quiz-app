@@ -48,7 +48,7 @@ export function ImportForm() {
       >
         <span className="text-ink">
           📄 Kéo thả file .csv vào đây, hoặc{' '}
-          <label className="cursor-pointer font-semibold text-accent underline">
+          <label className="cursor-pointer font-semibold text-accent underline hover:text-accent-dark">
             chọn file
             <input
               type="file"
@@ -64,7 +64,7 @@ export function ImportForm() {
         {fileName && <div className="mt-2 text-sm text-ink-soft">{fileName}</div>}
       </div>
 
-      <a href="/api/template" className="mb-4 inline-block text-sm font-semibold text-accent">
+      <a href="/api/template" className="mb-4 inline-block text-sm font-semibold text-accent hover:underline">
         📥 Tải file mẫu
       </a>
 
@@ -113,7 +113,7 @@ export function ImportForm() {
             type="button"
             disabled={preview.validRows.length === 0 || submitting || !deckName.trim()}
             onClick={handleConfirm}
-            className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] disabled:opacity-50"
+            className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent"
           >
             {submitting ? 'Đang import...' : `Import ${preview.validRows.length} câu hợp lệ`}
           </button>
