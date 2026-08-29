@@ -184,7 +184,7 @@ function QuestionEditForm({
         >
           <input type="checkbox" checked={opt.isCorrect} onChange={() => toggleCorrect(i)} />
           <input
-            className="flex-1 border-none bg-transparent text-sm text-ink outline-none"
+            className="flex-1 border-none bg-transparent text-sm text-ink outline-none focus:ring-2 focus:ring-accent/40 focus:rounded-badge"
             placeholder={`Lựa chọn ${i + 1}`}
             value={opt.text}
             onChange={(e) =>
