@@ -41,18 +41,18 @@ export function QuizRunner({
 
   if (phase === 'config') {
     if (totalAvailable === 0) {
-      return <p className="text-gray-500">Không có câu hỏi nào để làm.</p>;
+      return <p className="text-ink-soft">Không có câu hỏi nào để làm.</p>;
     }
     return (
       <div>
-        <h2 className="mb-3 text-lg font-medium">Bạn muốn làm bao nhiêu câu?</h2>
+        <h2 className="mb-3 text-lg font-bold text-ink">Bạn muốn làm bao nhiêu câu?</h2>
         <div className="flex flex-wrap gap-2">
           {countOptions.map((n) => (
             <button
               key={n}
               type="button"
               onClick={() => handleStart(n)}
-              className="rounded border border-gray-300 px-4 py-2 transition active:scale-[0.97] hover:border-blue-500"
+              className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
             >
               {n} câu
             </button>
@@ -60,7 +60,7 @@ export function QuizRunner({
           <button
             type="button"
             onClick={() => handleStart('all')}
-            className="rounded border border-gray-300 px-4 py-2 transition active:scale-[0.97] hover:border-blue-500"
+            className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
           >
             Tất cả ({totalAvailable})
           </button>
@@ -109,21 +109,21 @@ export function QuizRunner({
     }, 200);
   }
 
-  if (phase === 'loading') return <p className="text-gray-500">Đang tải câu hỏi...</p>;
-  if (questions.length === 0) return <p className="text-gray-500">Không có câu hỏi nào để ôn tập.</p>;
+  if (phase === 'loading') return <p className="text-ink-soft">Đang tải câu hỏi...</p>;
+  if (questions.length === 0) return <p className="text-ink-soft">Không có câu hỏi nào để ôn tập.</p>;
   if (!current) return null;
 
   return (
     <div>
-      <div className="mb-4 h-1.5 w-full overflow-hidden rounded bg-gray-200">
+      <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-accent/10">
         <div
-          className="h-full bg-blue-600 transition-all duration-300 ease-out"
+          className="h-full rounded-full bg-accent transition-all duration-300 ease-out"
           style={{
             width: `${((index + (phase === 'feedback' || phase === 'transitioning' ? 1 : 0)) / questions.length) * 100}%`,
           }}
         />
       </div>
-      <p className="mb-3 text-sm text-gray-500">
+      <p className="mb-3 text-sm font-medium text-ink-soft">
         Câu {index + 1}/{questions.length}
       </p>
 
@@ -135,18 +135,18 @@ export function QuizRunner({
             : 'translate-x-0 opacity-100 animate-question-slide-in'
         }
       >
-        <h2 className="mb-4 text-lg font-medium">{current.text}</h2>
+        <h2 className="mb-4 text-lg font-bold text-ink">{current.text}</h2>
 
         <div className="space-y-2">
           {current.options.map((opt) => {
             const isSelected = selected.includes(opt.id);
             const isCorrect = feedback?.correctOptionIds.includes(opt.id);
-            let colorClass = 'border-gray-300';
+            let stateClass = 'bg-white shadow-card';
             if (phase === 'feedback') {
-              if (isCorrect) colorClass = 'border-green-600 bg-green-50';
-              else if (isSelected) colorClass = 'border-red-600 bg-red-50';
+              if (isCorrect) stateClass = 'border-2 border-success bg-success-bg';
+              else if (isSelected) stateClass = 'border-2 border-danger bg-danger-bg';
             } else if (isSelected) {
-              colorClass = 'border-blue-500 bg-blue-50';
+              stateClass = 'border-2 border-accent bg-white';
             }
             return (
               <button
@@ -154,18 +154,26 @@ export function QuizRunner({
                 type="button"
                 disabled={phase === 'feedback'}
                 onClick={() => toggleOption(opt.id)}
-                className={`block w-full rounded border px-3 py-2 text-left transition duration-300 active:scale-[0.97] ${colorClass}`}
+                className={`flex w-full items-center justify-between rounded-control px-4 py-3 text-left text-sm font-medium text-ink transition duration-300 active:scale-[0.97] ${stateClass}`}
               >
-                {opt.text}
-                {phase === 'feedback' && isCorrect && ' ✓'}
-                {phase === 'feedback' && isSelected && !isCorrect && ' ✗'}
+                <span>{opt.text}</span>
+                {phase === 'feedback' && isCorrect && (
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success text-xs text-white">
+                    ✓
+                  </span>
+                )}
+                {phase === 'feedback' && isSelected && !isCorrect && (
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger text-xs text-white">
+                    ✗
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
         {phase === 'feedback' && feedback?.explanation && (
-          <p className="mt-3 rounded bg-gray-100 p-3 text-sm text-gray-700">💡 {feedback.explanation}</p>
+          <p className="mt-3 rounded-card bg-white p-4 text-sm text-ink-soft shadow-card">💡 {feedback.explanation}</p>
         )}
       </div>
 
@@ -175,7 +183,7 @@ export function QuizRunner({
             type="button"
             disabled={selected.length === 0 || isSubmittingAnswer}
             onClick={handleAnswer}
-            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97] disabled:opacity-50"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] disabled:opacity-50"
           >
             Kiểm tra
           </button>
@@ -184,7 +192,7 @@ export function QuizRunner({
           <button
             type="button"
             onClick={handleNext}
-            className="rounded bg-blue-600 px-4 py-2 text-white transition active:scale-[0.97]"
+            className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
           >
             {index + 1 >= questions.length ? 'Xem kết quả' : 'Câu tiếp theo →'}
           </button>
