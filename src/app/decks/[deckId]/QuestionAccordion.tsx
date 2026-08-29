@@ -86,18 +86,20 @@ export function QuestionAccordion({
       <button
         type="button"
         onClick={openNew}
-        className="mb-3 rounded border border-gray-300 px-3 py-1.5 text-sm transition active:scale-[0.97] hover:bg-gray-50"
+        className="mb-3 rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
       >
         + Thêm câu hỏi
       </button>
 
-      <div className="rounded border border-gray-200">
+      <div className="rounded-card bg-white shadow-card">
         {initialQuestions.map((q, i) => (
-          <div key={q.id} className="border-b last:border-b-0">
+          <div key={q.id} className="border-b border-bg last:border-b-0">
             <button
               type="button"
               onClick={() => (openId === q.id ? setOpenId(null) : openExisting(q))}
-              className="flex w-full items-center justify-between px-3 py-2 text-left transition active:scale-[0.97] hover:bg-gray-50"
+              className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink transition active:scale-[0.97] ${
+                openId === q.id ? 'bg-bg' : ''
+              }`}
             >
               <span>
                 {i + 1}. {q.text}
@@ -126,8 +128,8 @@ export function QuestionAccordion({
           </div>
         ))}
         <div
-          className={`grid border-t transition-[grid-template-rows] duration-200 ease-out ${
-            openId === 'new' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr] border-t-0'
+          className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+            openId === 'new' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
           }`}
         >
           <div className="overflow-hidden">
@@ -166,18 +168,23 @@ function QuestionEditForm({
   error?: string | null;
 }) {
   return (
-    <div className="space-y-2 bg-gray-50 p-4">
+    <div className="space-y-2 bg-bg p-4">
       <input
-        className="w-full rounded border border-gray-300 px-3 py-1.5"
+        className="w-full rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
         placeholder="Nội dung câu hỏi"
         value={edit.text}
         onChange={(e) => setEdit((prev) => ({ ...prev, text: e.target.value }))}
       />
       {edit.options.map((opt, i) => (
-        <div key={i} className="flex items-center gap-2">
+        <label
+          key={i}
+          className={`flex items-center gap-2 rounded-control px-3 py-2 ${
+            opt.isCorrect ? 'border-2 border-success bg-success-bg' : 'border-2 border-transparent bg-white shadow-card'
+          }`}
+        >
           <input type="checkbox" checked={opt.isCorrect} onChange={() => toggleCorrect(i)} />
           <input
-            className="flex-1 rounded border border-gray-300 px-3 py-1.5"
+            className="flex-1 border-none bg-transparent text-sm text-ink outline-none"
             placeholder={`Lựa chọn ${i + 1}`}
             value={opt.text}
             onChange={(e) =>
@@ -187,21 +194,21 @@ function QuestionEditForm({
               }))
             }
           />
-        </div>
+        </label>
       ))}
       <input
-        className="w-full rounded border border-gray-300 px-3 py-1.5"
+        className="w-full rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
         placeholder="Giải thích (tuỳ chọn)"
         value={edit.explanation}
         onChange={(e) => setEdit((prev) => ({ ...prev, explanation: e.target.value }))}
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end gap-2 pt-1">
         {onDelete && (
           <button
             type="button"
             onClick={onDelete}
-            className="rounded px-3 py-1.5 text-sm text-red-600 transition active:scale-[0.97]"
+            className="rounded-badge px-3 py-1.5 text-sm font-semibold text-danger transition active:scale-[0.97]"
           >
             🗑️ Xoá
           </button>
@@ -209,14 +216,14 @@ function QuestionEditForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded px-3 py-1.5 text-sm text-gray-600 transition active:scale-[0.97]"
+          className="rounded-badge px-3 py-1.5 text-sm font-semibold text-ink-soft transition active:scale-[0.97]"
         >
           Huỷ
         </button>
         <button
           type="button"
           onClick={onSave}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white transition active:scale-[0.97]"
+          className="rounded-badge bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
         >
           Lưu
         </button>

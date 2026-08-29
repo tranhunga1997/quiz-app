@@ -37,19 +37,19 @@ export function DeckHeader({
       {editing ? (
         <input
           autoFocus
-          className="rounded border border-gray-300 px-2 py-1 text-xl font-semibold"
+          className="rounded-control bg-white px-3 py-1.5 text-xl font-bold text-ink shadow-card"
           value={draftName}
           onChange={(e) => setDraftName(e.target.value)}
           onBlur={handleRename}
           onKeyDown={(e) => e.key === 'Enter' && handleRename()}
         />
       ) : (
-        <h1 className="text-xl font-semibold">
+        <h1 className="text-xl font-bold text-ink">
           📘 {name} — {questionCount} câu{' '}
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-sm text-gray-400 transition active:scale-[0.97] hover:text-gray-700"
+            className="text-sm text-ink-soft transition active:scale-[0.97] hover:text-ink"
           >
             ✏️
           </button>
@@ -58,14 +58,14 @@ export function DeckHeader({
       <div className="flex gap-2">
         <Link
           href={`/quiz/${deckId}?mode=normal`}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+          className="rounded-control bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97]"
         >
           ▶ Làm bài
         </Link>
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm text-red-600 transition active:scale-[0.97] hover:bg-red-50"
+          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger shadow-card transition active:scale-[0.97]"
         >
           🗑️ Xoá bộ đề
         </button>
