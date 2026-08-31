@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import type { QuestionWithOptions } from '@/lib/decks';
 import { addQuestion, updateQuestion, deleteQuestion } from '@/actions/question-actions';
 
@@ -86,13 +87,13 @@ export function QuestionAccordion({
       <button
         type="button"
         onClick={openNew}
-        className="mb-3 rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+        className="mb-3 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
       >
         + Thêm câu hỏi
       </button>
 
       {(initialQuestions.length > 0 || openId === 'new') && (
-        <div className="rounded-card bg-white shadow-card">
+        <div className="rounded-card bg-surface shadow-card">
           {initialQuestions.map((q, i) => (
             <div key={q.id} className="border-b border-bg">
               <button
@@ -105,7 +106,7 @@ export function QuestionAccordion({
                 <span>
                   {i + 1}. {q.text}
                 </span>
-                <span>{openId === q.id ? '▾' : '▸'}</span>
+                {openId === q.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
               <div
                 className={`grid transition-[grid-template-rows] duration-200 ease-out ${
@@ -172,7 +173,7 @@ function QuestionEditForm({
   return (
     <div className="space-y-2 bg-bg p-4">
       <input
-        className="w-full rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
+        className="w-full rounded-control bg-surface px-3 py-1.5 text-sm text-ink shadow-card"
         placeholder="Nội dung câu hỏi"
         value={edit.text}
         onChange={(e) => setEdit((prev) => ({ ...prev, text: e.target.value }))}
@@ -181,7 +182,7 @@ function QuestionEditForm({
         <label
           key={i}
           className={`flex items-center gap-2 rounded-control px-3 py-2 ${
-            opt.isCorrect ? 'border-2 border-success bg-success-bg' : 'border-2 border-transparent bg-white shadow-card'
+            opt.isCorrect ? 'border-2 border-success bg-success-bg' : 'border-2 border-transparent bg-surface shadow-card'
           }`}
         >
           <input type="checkbox" checked={opt.isCorrect} onChange={() => toggleCorrect(i)} />
@@ -199,33 +200,34 @@ function QuestionEditForm({
         </label>
       ))}
       <input
-        className="w-full rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
+        className="w-full rounded-control bg-surface px-3 py-1.5 text-sm text-ink shadow-card"
         placeholder="Giải thích (tuỳ chọn)"
         value={edit.explanation}
         onChange={(e) => setEdit((prev) => ({ ...prev, explanation: e.target.value }))}
       />
       {error && <p className="text-sm text-danger-text">{error}</p>}
-      <div className="flex justify-end gap-2 pt-1">
+      <div className="flex justify-end gap-2.5 pt-1">
         {onDelete && (
           <button
             type="button"
             onClick={onDelete}
-            className="rounded-badge px-3 py-1.5 text-sm font-semibold text-danger transition hover:bg-bg active:scale-[0.97]"
+            className="flex min-h-[44px] items-center gap-1.5 rounded-badge px-3 text-sm font-semibold text-danger transition hover:bg-bg active:scale-[0.97]"
           >
-            🗑️ Xoá
+            <Trash2 size={14} />
+            Xoá
           </button>
         )}
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-badge px-3 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-bg active:scale-[0.97]"
+          className="flex min-h-[44px] items-center rounded-badge px-3 text-sm font-semibold text-ink-soft transition hover:bg-bg active:scale-[0.97]"
         >
           Huỷ
         </button>
         <button
           type="button"
           onClick={onSave}
-          className="rounded-badge bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex min-h-[44px] items-center rounded-badge bg-accent-text px-3 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           Lưu
         </button>
