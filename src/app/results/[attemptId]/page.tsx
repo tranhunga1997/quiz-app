@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Clock, RotateCcw, Flame, Home } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { calculateScorePercent } from '@/lib/scoring';
 import { Breadcrumb } from '@/components/Breadcrumb';
@@ -38,7 +39,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
     }));
 
   return (
-    <main className="mx-auto max-w-md p-6 text-center">
+    <main id="main-content" className="mx-auto max-w-md p-6 text-center">
       <Breadcrumb
         items={[
           { label: 'Trang chủ', href: '/' },
@@ -48,37 +49,45 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       />
       <div
         className="mx-auto mb-4 flex h-28 w-28 items-center justify-center rounded-full shadow-card"
-        style={{ background: `conic-gradient(#22C55E ${scorePercent}%, #E1E4F5 0)` }}
+        style={{ background: `conic-gradient(#22C55E ${scorePercent}%, rgb(var(--color-track)) 0)` }}
       >
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-xl font-extrabold text-ink">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface text-xl font-extrabold text-ink">
           {scorePercent}%
         </div>
       </div>
       <p className="mb-1 text-sm font-semibold text-ink">
         {attempt.correctCount}/{attempt.totalQuestions} đúng
       </p>
-      {timeTaken && <p className="mb-1 text-sm text-ink-muted">⏱ Thời gian: {timeTaken}</p>}
+      {timeTaken && (
+        <p className="mb-1 flex items-center justify-center gap-1.5 text-sm text-ink-muted">
+          <Clock size={14} />
+          Thời gian: {timeTaken}
+        </p>
+      )}
 
       <ResultDetails missed={missed} />
 
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Link
           href={`/quiz/${attempt.deckId}?mode=normal`}
-          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          🔁 Làm lại
+          <RotateCcw size={14} />
+          Làm lại
         </Link>
         <Link
           href={`/quiz/${attempt.deckId}?mode=review`}
-          className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-accent-text px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
-          🔥 Ôn câu sai
+          <Flame size={14} />
+          Ôn câu sai
         </Link>
         <Link
           href="/"
-          className="rounded-control bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          🏠 Trang chủ
+          <Home size={14} />
+          Trang chủ
         </Link>
       </div>
     </main>
