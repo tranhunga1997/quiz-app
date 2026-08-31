@@ -12,7 +12,9 @@ test('import a deck, take the quiz, see results, then review a mistake', async (
   await page.getByRole('button', { name: /Import \d+ câu hợp lệ/ }).click();
 
   await expect(page).toHaveURL(/\/decks\//);
-  await expect(page.getByText('E2E Sample Deck')).toBeVisible();
+  // Match the deck-name heading specifically — the new breadcrumb also renders
+  // the deck name as plain text on this page, so a loose getByText is ambiguous.
+  await expect(page.getByRole('heading', { name: /E2E Sample Deck/ })).toBeVisible();
 
   await page.getByRole('link', { name: '▶ Làm bài' }).click();
   await expect(page).toHaveURL(/\/quiz\//);

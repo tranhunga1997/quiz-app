@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { calculateScorePercent } from '@/lib/scoring';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { ResultDetails } from './ResultDetails';
 
 function formatDuration(ms: number): string {
@@ -38,6 +39,13 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
 
   return (
     <main className="mx-auto max-w-md p-6 text-center">
+      <Breadcrumb
+        items={[
+          { label: 'Trang chủ', href: '/' },
+          { label: attempt.deck.name, href: `/decks/${attempt.deckId}` },
+          { label: 'Kết quả' },
+        ]}
+      />
       <div
         className="mx-auto mb-4 flex h-28 w-28 items-center justify-center rounded-full shadow-card"
         style={{ background: `conic-gradient(#22C55E ${scorePercent}%, #E1E4F5 0)` }}

@@ -9,8 +9,7 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto max-w-2xl p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink">📚 Quiz App</h1>
+      <div className="mb-8 flex justify-end">
         <Link
           href="/import"
           className="rounded-control bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] hover:bg-accent-dark"
