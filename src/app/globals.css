@@ -4,6 +4,48 @@
 
 :root {
   color-scheme: light;
+  --color-bg: 238 240 250;          /* #EEF0FA */
+  --color-surface: 255 255 255;     /* #FFFFFF */
+  --color-ink: 26 26 46;            /* #1A1A2E */
+  --color-ink-soft: 75 85 99;       /* #4B5563 */
+  --color-ink-muted: 107 114 128;   /* #6B7280 */
+  --color-accent: 79 110 247;       /* #4F6EF7 */
+  --color-accent-dark: 108 127 240; /* #6C7FF0 */
+  --color-accent-text: 59 87 224;   /* #3B57E0 */
+  --color-success-bg: 232 249 239;  /* #E8F9EF */
+  --color-warning-bg: 254 243 226;  /* #FEF3E2 */
+  --color-danger-bg: 253 236 236;   /* #FDECEC */
+  --color-track: 225 228 245;       /* #E1E4F5 */
+  --color-accent-solid: 59 87 224;    /* #3B57E0 */
+  --color-success-text: 21 128 61;    /* #15803D */
+  --color-danger-text: 192 57 47;     /* #C0392F */
+  --color-warning-text: 180 83 9;     /* #B45309 */
+  --color-success: 34 197 94;         /* #22C55E — same in both themes, kept as one declaration in :root */
+  --shadow-card: 0 8px 24px rgba(27, 37, 89, 0.08);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --color-bg: 18 20 43;             /* #12142B */
+  --color-surface: 30 33 66;        /* #1E2142 */
+  --color-ink: 241 242 250;         /* #F1F2FA */
+  --color-ink-soft: 145 149 181;    /* #9195B5 */
+  --color-ink-muted: 156 163 175;   /* #9CA3AF */
+  --color-accent: 108 127 240;      /* #6C7FF0 */
+  --color-accent-dark: 90 107 224;  /* #5A6BE0 */
+  --color-accent-text: 143 163 255; /* #8FA3FF */
+  --color-success-bg: 23 56 41;     /* #173829 */
+  --color-warning-bg: 61 49 23;     /* #3D3117 */
+  --color-danger-bg: 61 27 27;      /* #3D1B1B */
+  --color-track: 42 45 82;          /* #2A2D52 */
+  --color-accent-solid: 66 88 214;    /* #4258D6 */
+  --color-success-text: 74 222 128;   /* #4ADE80 */
+  --color-danger-text: 248 145 138;   /* #F8918A */
+  --color-warning-text: 245 166 35;   /* #F5A623 */
+  /* --shadow-card intentionally stronger + adds a faint light edge so cards keep
+     visible depth against the dark page background, where the light-mode navy
+     shadow alone would be nearly invisible. */
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 @media (prefers-reduced-motion: reduce) {

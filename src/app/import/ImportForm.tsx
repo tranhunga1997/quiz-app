@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FileText, Download, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { parseQuizCsv, type CsvParseResult } from '@/lib/csv';
 import { submitImport } from '@/actions/import-server-action';
 
@@ -38,7 +39,7 @@ export function ImportForm() {
   return (
     <div>
       <div
-        className="mb-4 rounded-card border-2 border-dashed border-accent/25 bg-white p-8 text-center shadow-card"
+        className="mb-4 rounded-card border-2 border-dashed border-accent/25 bg-surface p-8 text-center shadow-card"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -46,14 +47,15 @@ export function ImportForm() {
           if (file) handleFile(file);
         }}
       >
+        <FileText size={26} className="mx-auto mb-2 text-accent" />
         <span className="text-ink">
-          📄 Kéo thả file .csv vào đây, hoặc{' '}
-          <label className="cursor-pointer font-semibold text-accent underline hover:text-accent-dark">
+          Kéo thả file .csv vào đây, hoặc{' '}
+          <label className="cursor-pointer font-semibold text-accent-text underline hover:text-accent-dark">
             chọn file
             <input
               type="file"
               accept=".csv"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) handleFile(file);
@@ -64,37 +66,49 @@ export function ImportForm() {
         {fileName && <div className="mt-2 text-sm text-ink-soft">{fileName}</div>}
       </div>
 
-      <a href="/api/template" className="mb-4 inline-block text-sm font-semibold text-accent hover:underline">
-        📥 Tải file mẫu
+      <a
+        href="/api/template"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-text hover:underline"
+      >
+        <Download size={16} />
+        Tải file mẫu
       </a>
 
       {preview && (
         <div>
+          <label htmlFor="deckName" className="mb-1.5 block text-xs font-bold text-ink">
+            Tên bộ đề
+          </label>
           <input
-            className="mb-3 w-3/5 rounded-control bg-white px-3 py-1.5 text-sm text-ink shadow-card"
-            placeholder="Tên bộ đề"
+            id="deckName"
+            className="mb-3 w-3/5 rounded-control bg-surface px-3 py-1.5 text-sm text-ink shadow-card"
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
           />
 
           <div className="mb-3 flex gap-2 text-sm">
-            <span className="rounded-badge bg-success-bg px-2 py-1 font-semibold text-success-text">
-              ✅ {preview.validRows.length} dòng hợp lệ
+            <span className="flex items-center gap-1.5 rounded-badge bg-success-bg px-2 py-1 font-semibold text-success-text">
+              <CheckCircle2 size={16} />
+              {preview.validRows.length} dòng hợp lệ
             </span>
             {preview.errors.length > 0 && (
-              <span className="rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger-text">
-                ⚠️ {preview.errors.length} dòng lỗi
+              <span className="flex items-center gap-1.5 rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger-text">
+                <AlertTriangle size={16} />
+                {preview.errors.length} dòng lỗi
               </span>
             )}
           </div>
 
-          <div className="mb-4 max-h-64 overflow-y-auto rounded-card bg-white shadow-card">
+          <div className="mb-4 max-h-64 overflow-y-auto rounded-card bg-surface shadow-card">
             {preview.validRows.map((row) => (
               <div key={`ok-${row.rowNumber}`} className="flex justify-between border-b border-bg px-3 py-2 text-sm">
                 <span className="text-ink">
                   {row.rowNumber}. {row.question}
                 </span>
-                <span className="font-semibold text-success-text">✅ OK</span>
+                <span className="flex items-center gap-1.5 font-semibold text-success-text">
+                  <CheckCircle2 size={16} />
+                  OK
+                </span>
               </div>
             ))}
             {preview.errors.map((err) => (
@@ -102,18 +116,26 @@ export function ImportForm() {
                 <span className="text-ink">
                   Dòng {err.rowNumber}: {err.reason}
                 </span>
-                <span className="font-semibold text-danger-text">⚠️ Lỗi</span>
+                <span className="flex items-center gap-1.5 font-semibold text-danger-text">
+                  <AlertTriangle size={16} />
+                  Lỗi
+                </span>
               </div>
             ))}
           </div>
 
-          {submitError && <p className="mb-3 text-sm text-danger-text">{submitError}</p>}
+          {submitError && (
+            <p id="submit-error" role="alert" className="mb-3 text-sm text-danger-text">
+              {submitError}
+            </p>
+          )}
 
           <button
             type="button"
             disabled={preview.validRows.length === 0 || submitting || !deckName.trim()}
             onClick={handleConfirm}
-            className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent"
+            aria-describedby={submitError ? 'submit-error' : undefined}
+            className="rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent-solid"
           >
             {submitting ? 'Đang import...' : `Import ${preview.validRows.length} câu hợp lệ`}
           </button>
