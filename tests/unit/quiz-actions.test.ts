@@ -47,7 +47,7 @@ describe('quiz-actions', () => {
     cleanup = db.cleanup;
     const deck = await seedDeck(db.prisma);
 
-    const { attemptId, questions } = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const { attemptId, questions } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
 
     expect(questions).toHaveLength(2);
     for (const q of questions) {
@@ -60,23 +60,13 @@ describe('quiz-actions', () => {
     expect(attempt?.totalQuestions).toBe(2);
   });
 
-  it('startQuizSessionCore honors a numeric count limit', async () => {
-    const db = createTestDb();
-    cleanup = db.cleanup;
-    const deck = await seedDeck(db.prisma);
-
-    const { questions } = await startQuizSessionCore(db.prisma, deck.id, 1, 'NORMAL');
-
-    expect(questions).toHaveLength(1);
-  });
-
   it('submitAnswerCore records a correct answer and returns the correct option ids', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;
     const deck = await seedDeck(db.prisma);
     const q1 = deck.questions.find((q) => q.text === 'Q1')!;
     const correctOption = q1.options.find((o) => o.isCorrect)!;
-    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
 
     const result = await submitAnswerCore(db.prisma, attemptId, q1.id, [correctOption.id]);
 
@@ -92,20 +82,20 @@ describe('quiz-actions', () => {
     const deck = await seedDeck(db.prisma);
     const q1 = deck.questions.find((q) => q.text === 'Q1')!;
     const wrongOption = q1.options.find((o) => !o.isCorrect)!;
-    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
 
     const result = await submitAnswerCore(db.prisma, attemptId, q1.id, [wrongOption.id]);
 
     expect(result.isCorrect).toBe(false);
   });
 
-  it('finishQuizSessionCore computes score and lists missed questions', async () => {
+  it('finishQuizSessionCore computes correctCount/totalQuestions and persists them on the Attempt', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;
     const deck = await seedDeck(db.prisma);
     const q1 = deck.questions.find((q) => q.text === 'Q1')!;
     const q2 = deck.questions.find((q) => q.text === 'Q2')!;
-    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
 
     await submitAnswerCore(db.prisma, attemptId, q1.id, [q1.options.find((o) => o.isCorrect)!.id]);
     await submitAnswerCore(db.prisma, attemptId, q2.id, [q2.options.find((o) => !o.isCorrect)!.id]);
@@ -114,10 +104,9 @@ describe('quiz-actions', () => {
 
     expect(result.correctCount).toBe(1);
     expect(result.totalQuestions).toBe(2);
-    expect(result.scorePercent).toBe(50);
-    expect(result.missedQuestions).toHaveLength(1);
-    expect(result.missedQuestions[0].questionText).toBe('Q2');
-    expect(result.missedQuestions[0].correctAnswerText).toEqual(['D']);
+    const attempt = await db.prisma.attempt.findUnique({ where: { id: attemptId } });
+    expect(attempt?.correctCount).toBe(1);
+    expect(attempt?.finishedAt).not.toBeNull();
   });
 
   it('a REVIEW session only includes questions the deck has answered wrong before', async () => {
@@ -127,12 +116,12 @@ describe('quiz-actions', () => {
     const q1 = deck.questions.find((q) => q.text === 'Q1')!;
     const q2 = deck.questions.find((q) => q.text === 'Q2')!;
 
-    const normal = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const normal = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
     await submitAnswerCore(db.prisma, normal.attemptId, q1.id, [q1.options.find((o) => o.isCorrect)!.id]);
     await submitAnswerCore(db.prisma, normal.attemptId, q2.id, [q2.options.find((o) => !o.isCorrect)!.id]);
     await finishQuizSessionCore(db.prisma, normal.attemptId);
 
-    const review = await startQuizSessionCore(db.prisma, deck.id, 'all', 'REVIEW');
+    const review = await startQuizSessionCore(db.prisma, deck.id, 'REVIEW');
 
     expect(review.questions.map((q) => q.id)).toEqual([q2.id]);
   });
@@ -144,13 +133,13 @@ describe('quiz-actions', () => {
     const q1 = deck.questions.find((q) => q.text === 'Q1')!;
     const q2 = deck.questions.find((q) => q.text === 'Q2')!;
 
-    const normal = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    const normal = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
     await submitAnswerCore(db.prisma, normal.attemptId, q1.id, [q1.options.find((o) => o.isCorrect)!.id]);
     await submitAnswerCore(db.prisma, normal.attemptId, q2.id, [q2.options.find((o) => !o.isCorrect)!.id]);
     await finishQuizSessionCore(db.prisma, normal.attemptId);
 
     // Review q2, this time answering correctly.
-    const review = await startQuizSessionCore(db.prisma, deck.id, 'all', 'REVIEW');
+    const review = await startQuizSessionCore(db.prisma, deck.id, 'REVIEW');
     expect(review.questions.map((q) => q.id)).toEqual([q2.id]);
     await submitAnswerCore(db.prisma, review.attemptId, q2.id, [q2.options.find((o) => o.isCorrect)!.id]);
     await finishQuizSessionCore(db.prisma, review.attemptId);
@@ -160,7 +149,7 @@ describe('quiz-actions', () => {
     expect(totalAvailable).toBe(0);
   });
 
-  it('a REVIEW session with a numeric count picks the top-N highest-ranked questions, not a random sample', async () => {
+  it('a REVIEW session includes every eligible question, not just one', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;
     const deck = await db.prisma.deck.create({ data: { name: 'D' } });
@@ -185,21 +174,18 @@ describe('quiz-actions', () => {
       });
     }
 
-    // Ranked (per getReviewCandidates: wrongCount desc, lastWrongAt desc) from most to
-    // least eligible for review:
-    const qManyRecent = await makeQuestion('many-recent'); // wrongCount 2, most recent
-    const qFewRecent = await makeQuestion('few-recent'); // wrongCount 1, more recent than qFewOld
-    const qFewOld = await makeQuestion('few-old'); // wrongCount 1, oldest
+    const qA = await makeQuestion('a');
+    const qB = await makeQuestion('b');
+    const qC = await makeQuestion('c');
 
-    await recordWrongAnswer(qFewOld.id, new Date('2026-01-01'));
-    await recordWrongAnswer(qManyRecent.id, new Date('2026-01-01'));
-    await recordWrongAnswer(qManyRecent.id, new Date('2026-01-05'));
-    await recordWrongAnswer(qFewRecent.id, new Date('2026-01-10'));
+    await recordWrongAnswer(qA.id, new Date('2026-01-01'));
+    await recordWrongAnswer(qB.id, new Date('2026-01-05'));
+    await recordWrongAnswer(qC.id, new Date('2026-01-10'));
 
-    // Eligible pool has 3 questions; request only the top 2.
-    const review = await startQuizSessionCore(db.prisma, deck.id, 2, 'REVIEW');
+    // A REVIEW session no longer supports a partial count — it always includes the full
+    // eligible pool (see getReviewCandidates for how eligibility/ranking is determined).
+    const review = await startQuizSessionCore(db.prisma, deck.id, 'REVIEW');
 
-    expect(review.questions).toHaveLength(2);
-    expect(new Set(review.questions.map((q) => q.id))).toEqual(new Set([qManyRecent.id, qFewRecent.id]));
+    expect(new Set(review.questions.map((q) => q.id))).toEqual(new Set([qA.id, qB.id, qC.id]));
   });
 });

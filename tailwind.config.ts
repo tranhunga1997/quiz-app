@@ -25,7 +25,6 @@ const config: Config = {
           text: 'rgb(var(--color-success-text) / <alpha-value>)',
         },
         warning: {
-          DEFAULT: '#F5A623',
           bg: 'rgb(var(--color-warning-bg) / <alpha-value>)',
           text: 'rgb(var(--color-warning-text) / <alpha-value>)',
         },

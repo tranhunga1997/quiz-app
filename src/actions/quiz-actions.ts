@@ -4,7 +4,7 @@ import type { PrismaClient } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '../lib/db';
 import { shuffleArray } from '../lib/shuffle';
-import { isAnswerCorrect, calculateScorePercent } from '../lib/scoring';
+import { isAnswerCorrect } from '../lib/scoring';
 import { getReviewCandidates } from '../lib/review';
 
 export type QuizQuestion = {
@@ -20,24 +20,14 @@ export type SubmitAnswerResult = {
   explanation: string | null;
 };
 
-export type MissedQuestion = {
-  questionId: string;
-  questionText: string;
-  yourAnswerText: string[];
-  correctAnswerText: string[];
-};
-
 export type FinishResult = {
   correctCount: number;
   totalQuestions: number;
-  scorePercent: number;
-  missedQuestions: MissedQuestion[];
 };
 
 export async function startQuizSessionCore(
   client: PrismaClient,
   deckId: string,
-  count: number | 'all',
   mode: 'NORMAL' | 'REVIEW'
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
   let questionIds: string[] | undefined;
@@ -52,21 +42,7 @@ export async function startQuizSessionCore(
     include: { options: { orderBy: { order: 'asc' } } },
   });
 
-  let selected;
-  if (mode === 'REVIEW' && questionIds) {
-    // Preserve getReviewCandidates' priority order (wrongCount desc, lastWrongAt desc) when
-    // picking which questions to include — findMany does not guarantee that order. Only the
-    // final presentation order of the chosen subset gets shuffled below.
-    const byId = new Map(questions.map((q) => [q.id, q]));
-    const ranked = questionIds.map((id) => byId.get(id)).filter((q): q is (typeof questions)[number] => q != null);
-    const limited = count === 'all' ? ranked : ranked.slice(0, count);
-    selected = shuffleArray(limited);
-  } else {
-    selected = shuffleArray(questions);
-    if (count !== 'all') {
-      selected = selected.slice(0, count);
-    }
-  }
+  const selected = shuffleArray(questions);
 
   const attempt = await client.attempt.create({
     data: { deckId, mode, totalQuestions: selected.length },
@@ -108,46 +84,27 @@ export async function submitAnswerCore(
 }
 
 export async function finishQuizSessionCore(client: PrismaClient, attemptId: string): Promise<FinishResult> {
-  const answers = await client.attemptAnswer.findMany({
-    where: { attemptId },
-    include: { question: { include: { options: true } } },
-  });
+  // Only the correct/total counts are needed here to close out the Attempt — the per-question
+  // missed-answer detail is display-only and the results page computes it fresh from the DB
+  // itself (it can be revisited independently of this call), so it isn't duplicated here.
+  const answers = await client.attemptAnswer.findMany({ where: { attemptId } });
 
   const correctCount = answers.filter((a) => a.isCorrect).length;
   const totalQuestions = answers.length;
-
-  const missedQuestions: MissedQuestion[] = answers
-    .filter((a) => !a.isCorrect)
-    .map((a) => {
-      const selectedIds: string[] = JSON.parse(a.selectedOptionIds);
-      const optionById = new Map(a.question.options.map((o) => [o.id, o.text]));
-      return {
-        questionId: a.questionId,
-        questionText: a.question.text,
-        yourAnswerText: selectedIds.map((id) => optionById.get(id) ?? ''),
-        correctAnswerText: a.question.options.filter((o) => o.isCorrect).map((o) => o.text),
-      };
-    });
 
   await client.attempt.update({
     where: { id: attemptId },
     data: { finishedAt: new Date(), correctCount },
   });
 
-  return {
-    correctCount,
-    totalQuestions,
-    scorePercent: calculateScorePercent(correctCount, totalQuestions),
-    missedQuestions,
-  };
+  return { correctCount, totalQuestions };
 }
 
 export async function startQuizSession(
   deckId: string,
-  count: number | 'all',
   mode: 'NORMAL' | 'REVIEW'
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
-  return startQuizSessionCore(prisma, deckId, count, mode);
+  return startQuizSessionCore(prisma, deckId, mode);
 }
 
 export async function submitAnswer(

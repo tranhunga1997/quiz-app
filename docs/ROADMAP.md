@@ -14,8 +14,9 @@ All P0 features from the original spec are implemented and covered by tests:
 - **Decks**: list, view, rename, delete.
 - **Questions**: add/edit/delete, 4-option multiple choice, single- or
   multi-correct-answer support.
-- **Quiz session**: pick a deck → pick a session size (a number or "all") →
-  answer questions one at a time, shuffled, with immediate right/wrong
+- **Quiz session**: pick a deck → the session starts immediately with every
+  available question (no "how many?" picker — removed; a session is always
+  "all"), answered one at a time, shuffled, with immediate right/wrong
   feedback and explanations.
 - **Results**: score (%, correct/total, time taken), missed-question detail
   on demand, actions to retry / review mistakes / go home.
@@ -116,19 +117,16 @@ Deferred at spec time as "nice to have, later" — still true:
 
 ## A Spec-Level Design Question Worth Revisiting
 
-The review-eligibility rule (`wrongCount > 0` makes a question show up in
-"review your mistakes", forever) has no decay or retirement. A question
-missed once and then answered correctly ten times in a row is still counted
-as "needs review" — the review pool only grows, never shrinks, and will
-eventually converge on "every question you've ever gotten wrong at least
-once," at which point the feature stops discriminating between "still
-struggling with this" and "got this ages ago." This isn't an implementation
-bug — the code does exactly what the spec says — but it's worth reconsidering
-the spec's eligibility rule itself before it becomes a real usability
-problem. Cheapest fix, well short of full SM-2 (which is explicitly out of
-scope): drop a question from the pool once its *most recent* answer was
-correct, i.e. eligibility becomes "last answer was wrong" rather than "any
-answer was ever wrong."
+~~The review-eligibility rule (`wrongCount > 0` makes a question show up in
+"review your mistakes", forever) has no decay or retirement.~~ **Fixed.**
+`getReviewCandidates` (`src/lib/review.ts`) now checks the *most recent*
+answer per question (across any attempt, including a REVIEW attempt) rather
+than "was it ever answered wrong" — a question graduates out of the review
+pool as soon as it's answered correctly, and relapses back in if a later
+answer is wrong again. `wrongCount`/`lastWrongAt` still track full history
+for ranking. Reported by the user as a real bug (a question stayed in "Ôn
+câu sai" forever after being reviewed and answered correctly), independently
+matching this exact concern.
 
 ## Suggested Priority for the Next Iteration
 
@@ -136,14 +134,13 @@ If picking up this project again, roughly in order of value-per-effort:
 
 1. Gap #1 (CSV comma silent-wrong-answer) and #2 (revalidatePath gaps) —
    both small, both real correctness/UX issues.
-2. The review-pool decay question above — changes the headline feature's
-   long-term usefulness more than anything else on this list.
-3. P1: delete-a-single-attempt and search/filter (cheap, clear value).
-4. P1: stats dashboard and CSV export (bigger, but no new architecture
+2. P1: delete-a-single-attempt and search/filter (cheap, clear value).
+3. P1: stats dashboard and CSV export (bigger, but no new architecture
    needed).
-5. Gap #3 (test hardening), #6 (polish) — low urgency, fine to batch into a
-   cleanup pass whenever convenient. (Gap #5, missing animations, is done.)
-6. Gap #4 (option-id stability across edits) — the trickiest one
+4. Gap #3 (test hardening), #6 (polish) — low urgency, fine to batch into a
+   cleanup pass whenever convenient. (Gap #5, missing animations, and the
+   review-pool decay question above, are done.)
+5. Gap #4 (option-id stability across edits) — the trickiest one
    architecturally; worth designing deliberately rather than bolting on,
    since the two real fixes (snapshotting vs. preserving ids) have different
    tradeoffs for the rest of the schema.

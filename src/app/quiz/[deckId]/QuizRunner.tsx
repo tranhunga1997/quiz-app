@@ -33,7 +33,7 @@ export function QuizRunner({
 
   async function handleStart() {
     setPhase('loading');
-    const session = await startQuizSession(deckId, 'all', mode);
+    const session = await startQuizSession(deckId, mode);
     setAttemptId(session.attemptId);
     setQuestions(session.questions);
     setPhase(session.questions.length > 0 ? 'answering' : 'finishing');
