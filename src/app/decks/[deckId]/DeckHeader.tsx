@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { BookOpen, Pencil, Play, Trash2 } from 'lucide-react';
 import { renameDeck, deleteDeck } from '@/actions/deck-actions';
 
 export function DeckHeader({
@@ -37,37 +38,41 @@ export function DeckHeader({
       {editing ? (
         <input
           autoFocus
-          className="rounded-control bg-white px-3 py-1.5 text-xl font-bold text-ink shadow-card"
+          className="rounded-control bg-surface px-3 py-1.5 text-xl font-bold text-ink shadow-card"
           value={draftName}
           onChange={(e) => setDraftName(e.target.value)}
           onBlur={handleRename}
           onKeyDown={(e) => e.key === 'Enter' && handleRename()}
         />
       ) : (
-        <h1 className="text-xl font-bold text-ink">
-          📘 {name} — {questionCount} câu{' '}
+        <h1 className="flex items-center gap-2 text-xl font-bold text-ink">
+          <BookOpen size={20} className="shrink-0 text-accent" />
+          {name} — {questionCount} câu
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-sm text-ink-soft transition active:scale-[0.97] hover:text-ink"
+            aria-label="Đổi tên bộ đề"
+            className="flex h-11 w-11 items-center justify-center rounded-control text-ink-soft transition active:scale-[0.97] hover:text-ink"
           >
-            ✏️
+            <Pencil size={16} />
           </button>
         </h1>
       )}
       <div className="flex gap-2">
         <Link
           href={`/quiz/${deckId}?mode=normal`}
-          className="rounded-control bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-accent-text px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
-          ▶ Làm bài
+          <Play size={14} />
+          Làm bài
         </Link>
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded-control bg-white px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition hover:bg-bg active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          🗑️ Xoá bộ đề
+          <Trash2 size={14} />
+          Xoá bộ đề
         </button>
       </div>
     </div>
