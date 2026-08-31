@@ -13,6 +13,7 @@ export type QuestionWithOptions = {
   text: string;
   type: 'SINGLE' | 'MULTI';
   explanation: string | null;
+  flagged: boolean;
   options: { id: string; text: string; isCorrect: boolean; order: number }[];
 };
 
@@ -102,6 +103,7 @@ export async function getDeckWithQuestions(client: PrismaClient, deckId: string)
       text: q.text,
       type: q.type as 'SINGLE' | 'MULTI',
       explanation: q.explanation,
+      flagged: q.flagged,
       options: q.options,
     })),
   };

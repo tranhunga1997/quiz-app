@@ -66,6 +66,10 @@ export async function deleteQuestionCore(client: PrismaClient, questionId: strin
   await client.question.delete({ where: { id: questionId } });
 }
 
+export async function setQuestionFlagCore(client: PrismaClient, questionId: string, flagged: boolean): Promise<void> {
+  await client.question.update({ where: { id: questionId }, data: { flagged } });
+}
+
 export async function addQuestion(deckId: string, input: QuestionInput): Promise<{ id: string }> {
   return addQuestionCore(prisma, deckId, input);
 }
@@ -76,4 +80,8 @@ export async function updateQuestion(questionId: string, input: QuestionInput): 
 
 export async function deleteQuestion(questionId: string): Promise<void> {
   return deleteQuestionCore(prisma, questionId);
+}
+
+export async function setQuestionFlag(questionId: string, flagged: boolean): Promise<void> {
+  return setQuestionFlagCore(prisma, questionId, flagged);
 }

@@ -23,6 +23,7 @@ model Question {
   text        String
   type        String
   explanation String?
+  flagged     Boolean         @default(false)
   createdAt   DateTime        @default(now())
   options     Option[]
   answers     AttemptAnswer[]

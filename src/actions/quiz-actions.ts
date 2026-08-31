@@ -7,6 +7,8 @@ import { shuffleArray } from '../lib/shuffle';
 import { isAnswerCorrect } from '../lib/scoring';
 import { getReviewCandidates } from '../lib/review';
 
+export type QuizMode = 'NORMAL' | 'REVIEW' | 'FLAGGED';
+
 export type QuizQuestion = {
   id: string;
   text: string;
@@ -28,7 +30,7 @@ export type FinishResult = {
 export async function startQuizSessionCore(
   client: PrismaClient,
   deckId: string,
-  mode: 'NORMAL' | 'REVIEW',
+  mode: QuizMode,
   shuffleQuestions: boolean = true
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
   let questionIds: string[] | undefined;
@@ -36,6 +38,9 @@ export async function startQuizSessionCore(
   if (mode === 'REVIEW') {
     const candidates = await getReviewCandidates(client, deckId);
     questionIds = candidates.map((c) => c.questionId);
+  } else if (mode === 'FLAGGED') {
+    const flagged = await client.question.findMany({ where: { deckId, flagged: true }, select: { id: true } });
+    questionIds = flagged.map((q) => q.id);
   }
 
   const questions = await client.question.findMany({
@@ -109,7 +114,7 @@ export async function finishQuizSessionCore(client: PrismaClient, attemptId: str
 
 export async function startQuizSession(
   deckId: string,
-  mode: 'NORMAL' | 'REVIEW',
+  mode: QuizMode,
   shuffleQuestions: boolean = true
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
   return startQuizSessionCore(prisma, deckId, mode, shuffleQuestions);
