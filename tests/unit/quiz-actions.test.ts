@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { createTestDb } from '../testDb';
 import { startQuizSessionCore, submitAnswerCore, finishQuizSessionCore } from '../../src/actions/quiz-actions';
+import { getReviewCandidates } from '../../src/lib/review';
 
 describe('quiz-actions', () => {
   let cleanup: () => void;
@@ -134,6 +135,29 @@ describe('quiz-actions', () => {
     const review = await startQuizSessionCore(db.prisma, deck.id, 'all', 'REVIEW');
 
     expect(review.questions.map((q) => q.id)).toEqual([q2.id]);
+  });
+
+  it('a question drops out of REVIEW once answered correctly in a later attempt (including a REVIEW attempt)', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await seedDeck(db.prisma);
+    const q1 = deck.questions.find((q) => q.text === 'Q1')!;
+    const q2 = deck.questions.find((q) => q.text === 'Q2')!;
+
+    const normal = await startQuizSessionCore(db.prisma, deck.id, 'all', 'NORMAL');
+    await submitAnswerCore(db.prisma, normal.attemptId, q1.id, [q1.options.find((o) => o.isCorrect)!.id]);
+    await submitAnswerCore(db.prisma, normal.attemptId, q2.id, [q2.options.find((o) => !o.isCorrect)!.id]);
+    await finishQuizSessionCore(db.prisma, normal.attemptId);
+
+    // Review q2, this time answering correctly.
+    const review = await startQuizSessionCore(db.prisma, deck.id, 'all', 'REVIEW');
+    expect(review.questions.map((q) => q.id)).toEqual([q2.id]);
+    await submitAnswerCore(db.prisma, review.attemptId, q2.id, [q2.options.find((o) => o.isCorrect)!.id]);
+    await finishQuizSessionCore(db.prisma, review.attemptId);
+
+    // q2 was answered correctly most recently, so it should no longer need review.
+    const totalAvailable = (await getReviewCandidates(db.prisma, deck.id)).length;
+    expect(totalAvailable).toBe(0);
   });
 
   it('a REVIEW session with a numeric count picks the top-N highest-ranked questions, not a random sample', async () => {

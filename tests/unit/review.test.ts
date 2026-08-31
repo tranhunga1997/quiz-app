@@ -57,12 +57,39 @@ describe('getReviewCandidates', () => {
     const { deck, question } = await seedDeckWithQuestion(db.prisma);
     await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-01'));
     await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-02'));
-    await recordAnswer(db.prisma, deck.id, question.id, true, new Date('2026-01-03'));
 
     const candidates = await getReviewCandidates(db.prisma, deck.id);
 
     expect(candidates).toEqual([
       { questionId: question.id, wrongCount: 2, lastWrongAt: new Date('2026-01-02') },
+    ]);
+  });
+
+  it('excludes a question whose most recent answer is correct, even after earlier wrong answers', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const { deck, question } = await seedDeckWithQuestion(db.prisma);
+    await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-01'));
+    await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-02'));
+    await recordAnswer(db.prisma, deck.id, question.id, true, new Date('2026-01-03'));
+
+    const candidates = await getReviewCandidates(db.prisma, deck.id);
+
+    expect(candidates).toHaveLength(0);
+  });
+
+  it('re-includes a question that relapses: wrong, then correct, then wrong again', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const { deck, question } = await seedDeckWithQuestion(db.prisma);
+    await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-01'));
+    await recordAnswer(db.prisma, deck.id, question.id, true, new Date('2026-01-02'));
+    await recordAnswer(db.prisma, deck.id, question.id, false, new Date('2026-01-03'));
+
+    const candidates = await getReviewCandidates(db.prisma, deck.id);
+
+    expect(candidates).toEqual([
+      { questionId: question.id, wrongCount: 2, lastWrongAt: new Date('2026-01-03') },
     ]);
   });
 
