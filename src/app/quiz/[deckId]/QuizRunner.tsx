@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Check, X, Lightbulb } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Check, X, Lightbulb, RotateCcw, Home } from 'lucide-react';
 import {
   startQuizSession,
   submitAnswer,
@@ -11,6 +12,30 @@ import {
 } from '@/actions/quiz-actions';
 
 type Phase = 'loading' | 'answering' | 'feedback' | 'transitioning' | 'finishing';
+
+function EmptyQuizState({ deckId, message }: { deckId: string; message: string }) {
+  return (
+    <div>
+      <p className="mb-4 text-ink-muted">{message}</p>
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/quiz/${deckId}?mode=normal`}
+          className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+        >
+          <RotateCcw size={16} />
+          Làm lại
+        </Link>
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+        >
+          <Home size={16} />
+          Trang chủ
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export function QuizRunner({
   deckId,
@@ -51,7 +76,7 @@ export function QuizRunner({
   }, []);
 
   if (totalAvailable === 0) {
-    return <p className="text-ink-muted">Không có câu hỏi nào để làm.</p>;
+    return <EmptyQuizState deckId={deckId} message="Không có câu hỏi nào để làm." />;
   }
 
   const current = questions[index];
@@ -95,7 +120,7 @@ export function QuizRunner({
   }
 
   if (phase === 'loading') return <p className="text-ink-muted">Đang tải câu hỏi...</p>;
-  if (questions.length === 0) return <p className="text-ink-muted">Không có câu hỏi nào để ôn tập.</p>;
+  if (questions.length === 0) return <EmptyQuizState deckId={deckId} message="Không có câu hỏi nào để ôn tập." />;
   if (!current) return null;
 
   const progress = (index + (phase === 'feedback' || phase === 'transitioning' ? 1 : 0)) / questions.length;
