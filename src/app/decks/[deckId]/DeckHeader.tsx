@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, Pencil, Play, Trash2 } from 'lucide-react';
+import { BookOpen, Pencil, Play, Shuffle, Trash2 } from 'lucide-react';
 import { renameDeck, deleteDeck } from '@/actions/deck-actions';
 
 export function DeckHeader({
@@ -18,6 +18,7 @@ export function DeckHeader({
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const [shuffleQuestions, setShuffleQuestions] = useState(true);
 
   async function handleRename() {
     if (draftName.trim() && draftName !== name) {
@@ -58,9 +59,22 @@ export function DeckHeader({
           </button>
         </h1>
       )}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShuffleQuestions((s) => !s)}
+          aria-pressed={shuffleQuestions}
+          aria-label={shuffleQuestions ? 'Tắt trộn câu hỏi' : 'Bật trộn câu hỏi'}
+          className={`flex h-11 w-11 items-center justify-center rounded-control transition active:scale-[0.97] ${
+            shuffleQuestions
+              ? 'bg-accent-solid text-white shadow-accent'
+              : 'bg-surface text-ink-soft shadow-card hover:text-ink'
+          }`}
+        >
+          <Shuffle size={16} />
+        </button>
         <Link
-          href={`/quiz/${deckId}?mode=normal`}
+          href={`/quiz/${deckId}?mode=normal${shuffleQuestions ? '' : '&shuffle=false'}`}
           className="flex items-center gap-2 rounded-control bg-accent-solid px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           <Play size={16} />

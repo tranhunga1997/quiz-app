@@ -60,6 +60,30 @@ describe('quiz-actions', () => {
     expect(attempt?.totalQuestions).toBe(2);
   });
 
+  it('startQuizSessionCore preserves creation order when shuffleQuestions is false', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+    async function makeQuestion(text: string, createdAt: Date) {
+      return db.prisma.question.create({
+        data: {
+          deckId: deck.id,
+          text,
+          type: 'SINGLE',
+          createdAt,
+          options: { create: [{ text: 'A', isCorrect: true, order: 1 }] },
+        },
+      });
+    }
+    const q1 = await makeQuestion('First', new Date('2026-01-01'));
+    const q2 = await makeQuestion('Second', new Date('2026-01-02'));
+    const q3 = await makeQuestion('Third', new Date('2026-01-03'));
+
+    const { questions } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL', false);
+
+    expect(questions.map((q) => q.id)).toEqual([q1.id, q2.id, q3.id]);
+  });
+
   it('submitAnswerCore records a correct answer and returns the correct option ids', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;

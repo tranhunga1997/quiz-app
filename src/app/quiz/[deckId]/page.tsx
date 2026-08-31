@@ -9,9 +9,12 @@ export default async function QuizPage({
   searchParams,
 }: {
   params: { deckId: string };
-  searchParams: { mode?: string };
+  searchParams: { mode?: string; shuffle?: string };
 }) {
   const mode = searchParams.mode === 'review' ? 'REVIEW' : 'NORMAL';
+  // Absent or anything other than 'false' means shuffled — matches the
+  // existing default-on behavior when the deck-detail toggle isn't touched.
+  const shuffleQuestions = searchParams.shuffle !== 'false';
 
   const deck = await prisma.deck.findUnique({ where: { id: params.deckId }, select: { name: true } });
   if (!deck) notFound();
@@ -30,7 +33,12 @@ export default async function QuizPage({
           { label: mode === 'REVIEW' ? 'Ôn tập' : 'Làm bài' },
         ]}
       />
-      <QuizRunner deckId={params.deckId} mode={mode} totalAvailable={totalAvailable} />
+      <QuizRunner
+        deckId={params.deckId}
+        mode={mode}
+        totalAvailable={totalAvailable}
+        shuffleQuestions={shuffleQuestions}
+      />
     </main>
   );
 }

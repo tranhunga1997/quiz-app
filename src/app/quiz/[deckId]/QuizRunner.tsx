@@ -41,10 +41,12 @@ export function QuizRunner({
   deckId,
   mode,
   totalAvailable,
+  shuffleQuestions,
 }: {
   deckId: string;
   mode: 'NORMAL' | 'REVIEW';
   totalAvailable: number;
+  shuffleQuestions: boolean;
 }) {
   const router = useRouter();
   const [attemptId, setAttemptId] = useState<string | null>(null);
@@ -58,7 +60,7 @@ export function QuizRunner({
 
   async function handleStart() {
     setPhase('loading');
-    const session = await startQuizSession(deckId, mode);
+    const session = await startQuizSession(deckId, mode, shuffleQuestions);
     setAttemptId(session.attemptId);
     setQuestions(session.questions);
     setPhase(session.questions.length > 0 ? 'answering' : 'finishing');

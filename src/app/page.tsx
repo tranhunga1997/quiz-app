@@ -1,12 +1,27 @@
 import Link from 'next/link';
 import { Plus, BookOpen } from 'lucide-react';
-import { listDecksWithStats } from '@/lib/decks';
+import { prisma } from '@/lib/db';
+import { listDecksDue, listDecksWithStats } from '@/lib/decks';
+import { DeckFilter } from '@/components/DeckFilter';
+import { Pagination } from '@/components/Pagination';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
-  const decks = await listDecksWithStats();
-  const decksDue = decks.filter((d) => d.reviewDueCount > 0);
+const PAGE_SIZE = 5;
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { q?: string; page?: string };
+}) {
+  const query = searchParams.q ?? '';
+  const page = Math.max(1, Number(searchParams.page) || 1);
+
+  const [decksDue, { decks, totalCount }] = await Promise.all([
+    listDecksDue(prisma),
+    listDecksWithStats(prisma, { query, page, pageSize: PAGE_SIZE }),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">
@@ -41,28 +56,35 @@ export default async function HomePage() {
       )}
 
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Bộ đề của bạn</h2>
+      <DeckFilter initialQuery={query} />
+
       {decks.length === 0 ? (
-        <p className="text-ink-muted">Chưa có bộ đề nào. Import một file CSV để bắt đầu.</p>
+        <p className="text-ink-muted">
+          {query ? 'Không tìm thấy bộ đề nào khớp.' : 'Chưa có bộ đề nào. Import một file CSV để bắt đầu.'}
+        </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {decks.map((deck, i) => (
-            <Link
-              key={deck.id}
-              href={`/decks/${deck.id}`}
-              className="rounded-card bg-surface p-4 shadow-card transition hover:shadow-none active:scale-[0.97]"
-            >
-              <div
-                className={`mb-2 flex h-10 w-10 items-center justify-center rounded-control ${
-                  i % 2 === 0 ? 'bg-success-bg text-success-text' : 'bg-warning-bg text-warning-text'
-                }`}
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {decks.map((deck, i) => (
+              <Link
+                key={deck.id}
+                href={`/decks/${deck.id}`}
+                className="rounded-card bg-surface p-4 shadow-card transition hover:shadow-none active:scale-[0.97]"
               >
-                <BookOpen size={18} />
-              </div>
-              <div className="font-bold text-ink">{deck.name}</div>
-              <div className="mt-0.5 text-sm text-ink-soft">{deck.questionCount} câu</div>
-            </Link>
-          ))}
-        </div>
+                <div
+                  className={`mb-2 flex h-10 w-10 items-center justify-center rounded-control ${
+                    i % 2 === 0 ? 'bg-success-bg text-success-text' : 'bg-warning-bg text-warning-text'
+                  }`}
+                >
+                  <BookOpen size={18} />
+                </div>
+                <div className="font-bold text-ink">{deck.name}</div>
+                <div className="mt-0.5 text-sm text-ink-soft">{deck.questionCount} câu</div>
+              </Link>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} query={query} />
+        </>
       )}
     </main>
   );

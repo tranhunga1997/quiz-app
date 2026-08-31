@@ -3,6 +3,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '../lib/db';
+import { searchDeckNamesCore } from '../lib/decks';
 
 export async function renameDeckCore(client: PrismaClient, deckId: string, name: string): Promise<void> {
   await client.deck.update({ where: { id: deckId }, data: { name } });
@@ -19,4 +20,8 @@ export async function renameDeck(deckId: string, name: string): Promise<void> {
 export async function deleteDeck(deckId: string): Promise<void> {
   await deleteDeckCore(prisma, deckId);
   revalidatePath('/');
+}
+
+export async function searchDeckNames(query: string): Promise<{ id: string; name: string }[]> {
+  return searchDeckNamesCore(prisma, query);
 }

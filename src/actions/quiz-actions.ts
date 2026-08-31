@@ -28,7 +28,8 @@ export type FinishResult = {
 export async function startQuizSessionCore(
   client: PrismaClient,
   deckId: string,
-  mode: 'NORMAL' | 'REVIEW'
+  mode: 'NORMAL' | 'REVIEW',
+  shuffleQuestions: boolean = true
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
   let questionIds: string[] | undefined;
 
@@ -40,9 +41,15 @@ export async function startQuizSessionCore(
   const questions = await client.question.findMany({
     where: { deckId, ...(questionIds ? { id: { in: questionIds } } : {}) },
     include: { options: { orderBy: { order: 'asc' } } },
+    // Only meaningful when shuffleQuestions is false — a shuffle right after
+    // makes any DB order irrelevant, so skip the explicit sort in that case.
+    ...(shuffleQuestions ? {} : { orderBy: { createdAt: 'asc' as const } }),
   });
 
-  const selected = shuffleArray(questions);
+  // Question order respects shuffleQuestions; answer-option order within each
+  // question is always shuffled regardless, so memorizing "the answer is always
+  // position 2" never works.
+  const selected = shuffleQuestions ? shuffleArray(questions) : questions;
 
   const attempt = await client.attempt.create({
     data: { deckId, mode, totalQuestions: selected.length },
@@ -102,9 +109,10 @@ export async function finishQuizSessionCore(client: PrismaClient, attemptId: str
 
 export async function startQuizSession(
   deckId: string,
-  mode: 'NORMAL' | 'REVIEW'
+  mode: 'NORMAL' | 'REVIEW',
+  shuffleQuestions: boolean = true
 ): Promise<{ attemptId: string; questions: QuizQuestion[] }> {
-  return startQuizSessionCore(prisma, deckId, mode);
+  return startQuizSessionCore(prisma, deckId, mode, shuffleQuestions);
 }
 
 export async function submitAnswer(

@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation';
+import { prisma } from '@/lib/db';
 import { getDeckWithQuestions } from '@/lib/decks';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { DeckHeader } from './DeckHeader';
 import { QuestionAccordion } from './QuestionAccordion';
 
 export default async function DeckDetailPage({ params }: { params: { deckId: string } }) {
-  const deck = await getDeckWithQuestions(params.deckId);
+  const deck = await getDeckWithQuestions(prisma, params.deckId);
   if (!deck) notFound();
 
   return (
