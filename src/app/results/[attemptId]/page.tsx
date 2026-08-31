@@ -75,13 +75,24 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
           <RotateCcw size={16} />
           Làm lại
         </Link>
-        <Link
-          href={`/quiz/${attempt.deckId}?mode=review`}
-          className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
-        >
-          <Flame size={16} />
-          Ôn câu sai
-        </Link>
+        {missed.length > 0 ? (
+          <Link
+            href={`/quiz/${attempt.deckId}?mode=review`}
+            className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          >
+            <Flame size={16} />
+            Ôn câu sai
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent opacity-50 cursor-not-allowed"
+          >
+            <Flame size={16} />
+            Ôn câu sai
+          </button>
+        )}
         <Link
           href="/"
           className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
