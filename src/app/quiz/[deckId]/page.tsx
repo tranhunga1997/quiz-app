@@ -22,7 +22,7 @@ export default async function QuizPage({
       : await prisma.question.count({ where: { deckId: params.deckId } });
 
   return (
-    <main id="main-content" className="mx-auto max-w-2xl p-6">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">
       <Breadcrumb
         items={[
           { label: 'Trang chủ', href: '/' },

@@ -9,7 +9,7 @@ export default async function DeckDetailPage({ params }: { params: { deckId: str
   if (!deck) notFound();
 
   return (
-    <main id="main-content" className="mx-auto max-w-2xl p-6">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">
       <Breadcrumb items={[{ label: 'Trang chủ', href: '/' }, { label: deck.name }]} />
       <DeckHeader deckId={deck.id} name={deck.name} questionCount={deck.questions.length} />
       <QuestionAccordion deckId={deck.id} initialQuestions={deck.questions} />

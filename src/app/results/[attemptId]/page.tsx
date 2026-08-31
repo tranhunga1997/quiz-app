@@ -39,7 +39,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
     }));
 
   return (
-    <main id="main-content" className="mx-auto max-w-md p-6 text-center">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-md p-6 text-center">
       <Breadcrumb
         items={[
           { label: 'Trang chủ', href: '/' },
@@ -49,7 +49,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       />
       <div
         className="mx-auto mb-4 flex h-28 w-28 items-center justify-center rounded-full shadow-card"
-        style={{ background: `conic-gradient(#22C55E ${scorePercent}%, rgb(var(--color-track)) 0)` }}
+        style={{ background: `conic-gradient(rgb(var(--color-success)) ${scorePercent}%, rgb(var(--color-track)) 0)` }}
       >
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface text-xl font-extrabold text-ink">
           {scorePercent}%
@@ -60,7 +60,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       </p>
       {timeTaken && (
         <p className="mb-1 flex items-center justify-center gap-1.5 text-sm text-ink-muted">
-          <Clock size={14} />
+          <Clock size={16} />
           Thời gian: {timeTaken}
         </p>
       )}
@@ -72,21 +72,21 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
           href={`/quiz/${attempt.deckId}?mode=normal`}
           className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          <RotateCcw size={14} />
+          <RotateCcw size={16} />
           Làm lại
         </Link>
         <Link
           href={`/quiz/${attempt.deckId}?mode=review`}
           className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
-          <Flame size={14} />
+          <Flame size={16} />
           Ôn câu sai
         </Link>
         <Link
           href="/"
           className="flex items-center gap-2 rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          <Home size={14} />
+          <Home size={16} />
           Trang chủ
         </Link>
       </div>

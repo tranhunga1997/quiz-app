@@ -63,7 +63,7 @@ export function DeckHeader({
           href={`/quiz/${deckId}?mode=normal`}
           className="flex items-center gap-2 rounded-control bg-accent-solid px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
-          <Play size={14} />
+          <Play size={16} />
           Làm bài
         </Link>
         <button
@@ -71,7 +71,7 @@ export function DeckHeader({
           onClick={handleDelete}
           className="flex items-center gap-2 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-danger-text shadow-card transition hover:bg-bg active:scale-[0.97]"
         >
-          <Trash2 size={14} />
+          <Trash2 size={16} />
           Xoá bộ đề
         </button>
       </div>

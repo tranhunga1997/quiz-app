@@ -20,7 +20,7 @@ const config: Config = {
           muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
         },
         success: {
-          DEFAULT: '#22C55E',
+          DEFAULT: 'rgb(var(--color-success) / <alpha-value>)',
           bg: 'rgb(var(--color-success-bg) / <alpha-value>)',
           text: 'rgb(var(--color-success-text) / <alpha-value>)',
         },
@@ -42,7 +42,7 @@ const config: Config = {
         badge: '8px',
       },
       boxShadow: {
-        card: '0 8px 24px rgba(27,37,89,0.08)',
+        card: 'var(--shadow-card)',
         accent: '0 4px 12px rgba(79,110,247,0.35)',
       },
       fontFamily: {

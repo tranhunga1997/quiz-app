@@ -24,7 +24,7 @@ export function ResultDetails({ missed }: { missed: Missed[] }) {
         onClick={() => setOpen((o) => !o)}
         className="mx-auto flex items-center gap-1.5 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
       >
-        <ClipboardList size={14} />
+        <ClipboardList size={16} />
         {open ? 'Ẩn chi tiết' : 'Xem chi tiết từng câu'}
       </button>
       {open && (

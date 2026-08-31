@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import type { QuestionWithOptions } from '@/lib/decks';
 import { addQuestion, updateQuestion, deleteQuestion } from '@/actions/question-actions';
 
@@ -87,9 +87,10 @@ export function QuestionAccordion({
       <button
         type="button"
         onClick={openNew}
-        className="mb-3 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
+        className="mb-3 flex items-center gap-2 rounded-control bg-surface px-3 py-1.5 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
       >
-        + Thêm câu hỏi
+        <Plus size={16} />
+        Thêm câu hỏi
       </button>
 
       {(initialQuestions.length > 0 || openId === 'new') && (
@@ -213,7 +214,7 @@ function QuestionEditForm({
             onClick={onDelete}
             className="flex min-h-[44px] items-center gap-1.5 rounded-badge px-3 text-sm font-semibold text-danger transition hover:bg-bg active:scale-[0.97]"
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
             Xoá
           </button>
         )}

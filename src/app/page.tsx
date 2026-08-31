@@ -9,7 +9,7 @@ export default async function HomePage() {
   const decksDue = decks.filter((d) => d.reviewDueCount > 0);
 
   return (
-    <main id="main-content" className="mx-auto max-w-2xl p-6">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">
       <div className="mb-8 flex justify-end">
         <Link
           href="/import"

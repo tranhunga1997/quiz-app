@@ -55,7 +55,7 @@ export function ImportForm() {
             <input
               type="file"
               accept=".csv"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) handleFile(file);
@@ -70,7 +70,7 @@ export function ImportForm() {
         href="/api/template"
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-text hover:underline"
       >
-        <Download size={14} />
+        <Download size={16} />
         Tải file mẫu
       </a>
 
@@ -88,12 +88,12 @@ export function ImportForm() {
 
           <div className="mb-3 flex gap-2 text-sm">
             <span className="flex items-center gap-1.5 rounded-badge bg-success-bg px-2 py-1 font-semibold text-success-text">
-              <CheckCircle2 size={14} />
+              <CheckCircle2 size={16} />
               {preview.validRows.length} dòng hợp lệ
             </span>
             {preview.errors.length > 0 && (
               <span className="flex items-center gap-1.5 rounded-badge bg-danger-bg px-2 py-1 font-semibold text-danger-text">
-                <AlertTriangle size={14} />
+                <AlertTriangle size={16} />
                 {preview.errors.length} dòng lỗi
               </span>
             )}
@@ -106,7 +106,7 @@ export function ImportForm() {
                   {row.rowNumber}. {row.question}
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold text-success-text">
-                  <CheckCircle2 size={14} />
+                  <CheckCircle2 size={16} />
                   OK
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function ImportForm() {
                   Dòng {err.rowNumber}: {err.reason}
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold text-danger-text">
-                  <AlertTriangle size={14} />
+                  <AlertTriangle size={16} />
                   Lỗi
                 </span>
               </div>
