@@ -19,7 +19,7 @@ test('import a deck, take the quiz, see results, then review a mistake', async (
   await page.getByRole('link', { name: 'Làm bài' }).click();
   await expect(page).toHaveURL(/\/quiz\//);
 
-  await page.getByRole('button', { name: /Tất cả/ }).click();
+  // Quiz starts immediately with every question — no "how many?" picker anymore.
 
   // Answer question 1 correctly if it's the capital question, otherwise deliberately wrong,
   // to guarantee at least one miss for the review-mode assertion below.
@@ -49,6 +49,6 @@ test('import a deck, take the quiz, see results, then review a mistake', async (
   await expect(page.getByText(/Ôn câu hay sai/)).toBeVisible();
   await page.getByText(/Ôn câu hay sai/).click();
   await expect(page).toHaveURL(/mode=review/);
-  await page.getByRole('button', { name: /Tất cả/ }).click();
+  // Review mode also starts immediately with every wrong question — no picker.
   await expect(page.getByText('2 + 2 = ?')).toBeVisible();
 });

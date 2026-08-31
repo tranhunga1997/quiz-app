@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, X, Lightbulb } from 'lucide-react';
 import {
@@ -10,7 +10,7 @@ import {
   type QuizQuestion,
 } from '@/actions/quiz-actions';
 
-type Phase = 'config' | 'loading' | 'answering' | 'feedback' | 'transitioning' | 'finishing';
+type Phase = 'loading' | 'answering' | 'feedback' | 'transitioning' | 'finishing';
 
 export function QuizRunner({
   deckId,
@@ -27,47 +27,31 @@ export function QuizRunner({
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<{ correctOptionIds: string[]; explanation: string | null } | null>(null);
-  const [phase, setPhase] = useState<Phase>('config');
+  const [phase, setPhase] = useState<Phase>('loading');
   const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
+  const hasStartedRef = useRef(false);
 
-  const countOptions = [5, 10, 20].filter((n) => n < totalAvailable);
-
-  async function handleStart(count: number | 'all') {
+  async function handleStart() {
     setPhase('loading');
-    const session = await startQuizSession(deckId, count, mode);
+    const session = await startQuizSession(deckId, 'all', mode);
     setAttemptId(session.attemptId);
     setQuestions(session.questions);
     setPhase(session.questions.length > 0 ? 'answering' : 'finishing');
   }
 
-  if (phase === 'config') {
-    if (totalAvailable === 0) {
-      return <p className="text-ink-muted">Không có câu hỏi nào để làm.</p>;
-    }
-    return (
-      <div>
-        <h2 className="mb-3 text-lg font-bold text-ink">Bạn muốn làm bao nhiêu câu?</h2>
-        <div className="flex flex-wrap gap-2">
-          {countOptions.map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => handleStart(n)}
-              className="rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition hover:bg-bg active:scale-[0.97]"
-            >
-              {n} câu
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => handleStart('all')}
-            className="rounded-control bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-card transition active:scale-[0.97]"
-          >
-            Tất cả ({totalAvailable})
-          </button>
-        </div>
-      </div>
-    );
+  // Skip the "how many questions?" picker entirely — a session always starts
+  // with every available question (all questions for NORMAL, all currently-wrong
+  // questions for REVIEW). Guarded by a ref so React StrictMode's double-invoke
+  // in dev doesn't create two Attempts.
+  useEffect(() => {
+    if (hasStartedRef.current || totalAvailable === 0) return;
+    hasStartedRef.current = true;
+    handleStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (totalAvailable === 0) {
+    return <p className="text-ink-muted">Không có câu hỏi nào để làm.</p>;
   }
 
   const current = questions[index];
