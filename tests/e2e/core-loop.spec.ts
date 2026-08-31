@@ -8,7 +8,7 @@ test('import a deck, take the quiz, see results, then review a mistake', async (
   await page.setInputFiles('input[type="file"]', path.join(__dirname, 'fixtures/sample-deck.csv'));
   await expect(page.getByText('2 dòng hợp lệ')).toBeVisible();
 
-  await page.getByPlaceholder('Tên bộ đề').fill('E2E Sample Deck');
+  await page.getByLabel('Tên bộ đề').fill('E2E Sample Deck');
   await page.getByRole('button', { name: /Import \d+ câu hợp lệ/ }).click();
 
   await expect(page).toHaveURL(/\/decks\//);
@@ -16,7 +16,7 @@ test('import a deck, take the quiz, see results, then review a mistake', async (
   // the deck name as plain text on this page, so a loose getByText is ambiguous.
   await expect(page.getByRole('heading', { name: /E2E Sample Deck/ })).toBeVisible();
 
-  await page.getByRole('link', { name: '▶ Làm bài' }).click();
+  await page.getByRole('link', { name: 'Làm bài' }).click();
   await expect(page).toHaveURL(/\/quiz\//);
 
   await page.getByRole('button', { name: /Tất cả/ }).click();
