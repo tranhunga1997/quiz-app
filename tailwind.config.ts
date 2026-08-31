@@ -12,6 +12,7 @@ const config: Config = {
           DEFAULT: 'rgb(var(--color-accent) / <alpha-value>)',
           dark: 'rgb(var(--color-accent-dark) / <alpha-value>)',
           text: 'rgb(var(--color-accent-text) / <alpha-value>)',
+          solid: 'rgb(var(--color-accent-solid) / <alpha-value>)',
         },
         ink: {
           DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
@@ -21,16 +22,17 @@ const config: Config = {
         success: {
           DEFAULT: '#22C55E',
           bg: 'rgb(var(--color-success-bg) / <alpha-value>)',
-          text: '#15803D',
+          text: 'rgb(var(--color-success-text) / <alpha-value>)',
         },
         warning: {
           DEFAULT: '#F5A623',
           bg: 'rgb(var(--color-warning-bg) / <alpha-value>)',
+          text: 'rgb(var(--color-warning-text) / <alpha-value>)',
         },
         danger: {
           DEFAULT: '#F4645A',
           bg: 'rgb(var(--color-danger-bg) / <alpha-value>)',
-          text: '#C0392F',
+          text: 'rgb(var(--color-danger-text) / <alpha-value>)',
         },
         track: 'rgb(var(--color-track) / <alpha-value>)',
       },

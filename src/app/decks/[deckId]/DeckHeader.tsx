@@ -61,7 +61,7 @@ export function DeckHeader({
       <div className="flex gap-2">
         <Link
           href={`/quiz/${deckId}?mode=normal`}
-          className="flex items-center gap-2 rounded-control bg-accent-text px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-accent-solid px-3 py-1.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           <Play size={14} />
           Làm bài

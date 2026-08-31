@@ -135,7 +135,7 @@ export function ImportForm() {
             disabled={preview.validRows.length === 0 || submitting || !deckName.trim()}
             onClick={handleConfirm}
             aria-describedby={submitError ? 'submit-error' : undefined}
-            className="rounded-control bg-accent-text px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent-text"
+            className="rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent-solid"
           >
             {submitting ? 'Đang import...' : `Import ${preview.validRows.length} câu hợp lệ`}
           </button>

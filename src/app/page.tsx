@@ -13,7 +13,7 @@ export default async function HomePage() {
       <div className="mb-8 flex justify-end">
         <Link
           href="/import"
-          className="flex items-center gap-2 rounded-control bg-accent-text px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] hover:bg-accent-dark"
+          className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition active:scale-[0.97] hover:bg-accent-dark"
         >
           <Plus size={16} />
           Import CSV
@@ -26,7 +26,7 @@ export default async function HomePage() {
             <Link
               key={deck.id}
               href={`/quiz/${deck.id}?mode=review`}
-              className="flex items-center justify-between rounded-card bg-gradient-to-br from-accent-text to-accent-dark p-5 text-white shadow-card transition hover:brightness-105 active:scale-[0.97]"
+              className="flex items-center justify-between rounded-card bg-gradient-to-br from-accent-solid to-accent-dark p-5 text-white shadow-card transition hover:brightness-105 active:scale-[0.97]"
             >
               <div>
                 <div className="text-sm font-bold">🔥 Ôn câu hay sai</div>
@@ -53,7 +53,7 @@ export default async function HomePage() {
             >
               <div
                 className={`mb-2 flex h-10 w-10 items-center justify-center rounded-control ${
-                  i % 2 === 0 ? 'bg-success-bg text-success-text' : 'bg-warning-bg text-warning'
+                  i % 2 === 0 ? 'bg-success-bg text-success-text' : 'bg-warning-bg text-warning-text'
                 }`}
               >
                 <BookOpen size={18} />

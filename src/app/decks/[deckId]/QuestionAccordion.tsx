@@ -227,7 +227,7 @@ function QuestionEditForm({
         <button
           type="button"
           onClick={onSave}
-          className="flex min-h-[44px] items-center rounded-badge bg-accent-text px-3 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex min-h-[44px] items-center rounded-badge bg-accent-solid px-3 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           Lưu
         </button>

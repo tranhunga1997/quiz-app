@@ -77,7 +77,7 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
         </Link>
         <Link
           href={`/quiz/${attempt.deckId}?mode=review`}
-          className="flex items-center gap-2 rounded-control bg-accent-text px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+          className="flex items-center gap-2 rounded-control bg-accent-solid px-4 py-2 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
         >
           <Flame size={14} />
           Ôn câu sai

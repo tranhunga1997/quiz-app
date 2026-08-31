@@ -177,7 +177,7 @@ export function QuizRunner({
 
         {phase === 'feedback' && feedback?.explanation && (
           <p className="mt-3 flex items-start gap-2 rounded-card bg-surface p-4 text-sm text-ink-muted shadow-card">
-            <Lightbulb size={16} className="mt-0.5 shrink-0 text-warning" />
+            <Lightbulb size={16} className="mt-0.5 shrink-0 text-warning-text" />
             {feedback.explanation}
           </p>
         )}
@@ -189,7 +189,7 @@ export function QuizRunner({
             type="button"
             disabled={selected.length === 0 || isSubmittingAnswer}
             onClick={handleAnswer}
-            className="rounded-control bg-accent-text px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent-text"
+            className="rounded-control bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-accent-solid"
           >
             Kiểm tra
           </button>
@@ -198,7 +198,7 @@ export function QuizRunner({
           <button
             type="button"
             onClick={handleNext}
-            className="rounded-control bg-accent-text px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
+            className="rounded-control bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white shadow-accent transition hover:bg-accent-dark active:scale-[0.97]"
           >
             {index + 1 >= questions.length ? 'Xem kết quả' : 'Câu tiếp theo →'}
           </button>
