@@ -173,6 +173,24 @@ describe('quiz-actions', () => {
     expect(totalAvailable).toBe(0);
   });
 
+  it('a FLAGGED session only includes questions manually flagged, regardless of right/wrong history', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await seedDeck(db.prisma);
+    const q1 = deck.questions.find((q) => q.text === 'Q1')!;
+    const q2 = deck.questions.find((q) => q.text === 'Q2')!;
+    await db.prisma.question.update({ where: { id: q1.id }, data: { flagged: true } });
+
+    // Answer q2 wrong — this must NOT make it eligible for FLAGGED (only REVIEW cares about that).
+    const normal = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
+    await submitAnswerCore(db.prisma, normal.attemptId, q2.id, [q2.options.find((o) => !o.isCorrect)!.id]);
+    await finishQuizSessionCore(db.prisma, normal.attemptId);
+
+    const flagged = await startQuizSessionCore(db.prisma, deck.id, 'FLAGGED');
+
+    expect(flagged.questions.map((q) => q.id)).toEqual([q1.id]);
+  });
+
   it('a REVIEW session includes every eligible question, not just one', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;

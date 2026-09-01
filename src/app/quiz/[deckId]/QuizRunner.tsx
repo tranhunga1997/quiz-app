@@ -8,6 +8,7 @@ import {
   startQuizSession,
   submitAnswer,
   finishQuizSession,
+  type QuizMode,
   type QuizQuestion,
 } from '@/actions/quiz-actions';
 
@@ -44,7 +45,7 @@ export function QuizRunner({
   shuffleQuestions,
 }: {
   deckId: string;
-  mode: 'NORMAL' | 'REVIEW';
+  mode: QuizMode;
   totalAvailable: number;
   shuffleQuestions: boolean;
 }) {

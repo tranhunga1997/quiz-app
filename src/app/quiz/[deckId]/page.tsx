@@ -1,8 +1,21 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { getReviewCandidates } from '@/lib/review';
+import { type QuizMode } from '@/actions/quiz-actions';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { QuizRunner } from './QuizRunner';
+
+function parseMode(raw: string | undefined): QuizMode {
+  if (raw === 'review') return 'REVIEW';
+  if (raw === 'flagged') return 'FLAGGED';
+  return 'NORMAL';
+}
+
+const MODE_LABEL: Record<QuizMode, string> = {
+  NORMAL: 'Làm bài',
+  REVIEW: 'Ôn tập',
+  FLAGGED: 'Câu đã đánh dấu',
+};
 
 export default async function QuizPage({
   params,
@@ -11,7 +24,7 @@ export default async function QuizPage({
   params: { deckId: string };
   searchParams: { mode?: string; shuffle?: string };
 }) {
-  const mode = searchParams.mode === 'review' ? 'REVIEW' : 'NORMAL';
+  const mode = parseMode(searchParams.mode);
   // Absent or anything other than 'false' means shuffled — matches the
   // existing default-on behavior when the deck-detail toggle isn't touched.
   const shuffleQuestions = searchParams.shuffle !== 'false';
@@ -22,7 +35,9 @@ export default async function QuizPage({
   const totalAvailable =
     mode === 'REVIEW'
       ? (await getReviewCandidates(prisma, params.deckId)).length
-      : await prisma.question.count({ where: { deckId: params.deckId } });
+      : mode === 'FLAGGED'
+        ? await prisma.question.count({ where: { deckId: params.deckId, flagged: true } })
+        : await prisma.question.count({ where: { deckId: params.deckId } });
 
   return (
     <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">
@@ -30,7 +45,7 @@ export default async function QuizPage({
         items={[
           { label: 'Trang chủ', href: '/' },
           { label: deck.name, href: `/decks/${params.deckId}` },
-          { label: mode === 'REVIEW' ? 'Ôn tập' : 'Làm bài' },
+          { label: MODE_LABEL[mode] },
         ]}
       />
       <QuizRunner

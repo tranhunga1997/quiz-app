@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Flag, Plus, Trash2 } from 'lucide-react';
 import type { QuestionWithOptions } from '@/lib/decks';
-import { addQuestion, updateQuestion, deleteQuestion } from '@/actions/question-actions';
+import { addQuestion, updateQuestion, deleteQuestion, setQuestionFlag } from '@/actions/question-actions';
 
 type EditableOption = { text: string; isCorrect: boolean };
 type EditState = { text: string; explanation: string; options: EditableOption[] };
@@ -82,6 +82,11 @@ export function QuestionAccordion({
     router.refresh();
   }
 
+  async function handleToggleFlag(question: QuestionWithOptions) {
+    await setQuestionFlag(question.id, !question.flagged);
+    router.refresh();
+  }
+
   return (
     <div>
       <button
@@ -96,18 +101,27 @@ export function QuestionAccordion({
       {(initialQuestions.length > 0 || openId === 'new') && (
         <div className="rounded-card bg-surface shadow-card">
           {initialQuestions.map((q, i) => (
-            <div key={q.id} className="border-b border-bg">
+            <div key={q.id} className={`flex items-center border-b border-bg ${openId === q.id ? 'bg-bg' : ''}`}>
               <button
                 type="button"
                 onClick={() => (openId === q.id ? setOpenId(null) : openExisting(q))}
-                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink transition hover:bg-bg active:scale-[0.97] ${
-                  openId === q.id ? 'bg-bg' : ''
-                }`}
+                className="flex flex-1 items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink transition hover:bg-bg active:scale-[0.97]"
               >
                 <span>
                   {i + 1}. {q.text}
                 </span>
                 {openId === q.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleFlag(q)}
+                aria-pressed={q.flagged}
+                aria-label={q.flagged ? 'Bỏ đánh dấu câu khó' : 'Đánh dấu câu khó'}
+                className={`mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-control transition active:scale-[0.97] ${
+                  q.flagged ? 'text-warning' : 'text-ink-soft hover:text-ink'
+                }`}
+              >
+                <Flag size={16} fill={q.flagged ? 'currentColor' : 'none'} />
               </button>
               <div
                 className={`grid transition-[grid-template-rows] duration-200 ease-out ${

@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { createTestDb } from '../testDb';
-import { addQuestionCore, updateQuestionCore, deleteQuestionCore } from '../../src/actions/question-actions';
+import { addQuestionCore, updateQuestionCore, deleteQuestionCore, setQuestionFlagCore } from '../../src/actions/question-actions';
 
 describe('question-actions', () => {
   let cleanup: () => void;
@@ -94,5 +94,19 @@ describe('question-actions', () => {
     await deleteQuestionCore(db.prisma, id);
 
     expect(await db.prisma.question.findUnique({ where: { id } })).toBeNull();
+  });
+
+  it('setQuestionFlagCore sets and unsets the flagged field', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+    const { id } = await addQuestionCore(db.prisma, deck.id, validInput);
+    expect((await db.prisma.question.findUnique({ where: { id } }))?.flagged).toBe(false);
+
+    await setQuestionFlagCore(db.prisma, id, true);
+    expect((await db.prisma.question.findUnique({ where: { id } }))?.flagged).toBe(true);
+
+    await setQuestionFlagCore(db.prisma, id, false);
+    expect((await db.prisma.question.findUnique({ where: { id } }))?.flagged).toBe(false);
   });
 });
