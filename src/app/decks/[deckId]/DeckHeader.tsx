@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, History, Pencil, Play, Shuffle, Trash2 } from 'lucide-react';
+import { BookOpen, History, Pencil, Play, Printer, Shuffle, Trash2 } from 'lucide-react';
 import { renameDeck, deleteDeck } from '@/actions/deck-actions';
 
 export function DeckHeader({
@@ -86,6 +86,13 @@ export function DeckHeader({
           className="flex h-11 w-11 items-center justify-center rounded-control bg-surface text-ink-soft shadow-card transition hover:text-ink active:scale-[0.97]"
         >
           <History size={16} />
+        </Link>
+        <Link
+          href={`/decks/${deckId}/print`}
+          aria-label="Xuất bản in để ôn tập offline"
+          className="flex h-11 w-11 items-center justify-center rounded-control bg-surface text-ink-soft shadow-card transition hover:text-ink active:scale-[0.97]"
+        >
+          <Printer size={16} />
         </Link>
         <button
           type="button"

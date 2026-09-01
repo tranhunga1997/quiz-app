@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Bỏ qua điều hướng
         </a>
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-bg bg-surface/90 px-6 py-3 backdrop-blur">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-bg bg-surface/90 px-6 py-3 backdrop-blur print:hidden">
           <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-ink">
             <BookOpen size={20} className="text-accent" />
             Quiz App

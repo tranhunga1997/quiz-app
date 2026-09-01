@@ -48,6 +48,25 @@
   --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
+/* Printed study sheets (see /decks/[deckId]/print) should always come out on plain
+   white paper with black ink, regardless of whether the screen is in dark mode —
+   printing a dark background wastes ink and reads poorly off-screen. */
+@media print {
+  :root,
+  :root.dark {
+    color-scheme: light;
+    --color-bg: 255 255 255;
+    --color-surface: 255 255 255;
+    --color-ink: 0 0 0;
+    --color-ink-soft: 55 65 81;
+    --color-ink-muted: 75 85 99;
+    --color-success-text: 21 128 61;
+    --color-danger-text: 192 57 47;
+    --color-track: 225 228 245;
+    --shadow-card: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
