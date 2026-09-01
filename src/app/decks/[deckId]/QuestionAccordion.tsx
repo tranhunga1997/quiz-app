@@ -1,10 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronRight, Flag, Plus, Trash2 } from 'lucide-react';
 import type { QuestionWithOptions } from '@/lib/decks';
-import { addQuestion, updateQuestion, deleteQuestion, setQuestionFlag } from '@/actions/question-actions';
+import type { QuestionHistoryStats } from '@/lib/questionHistory';
+import {
+  addQuestion,
+  updateQuestion,
+  deleteQuestion,
+  setQuestionFlag,
+  getQuestionHistory,
+} from '@/actions/question-actions';
 
 type EditableOption = { text: string; isCorrect: boolean };
 type EditState = { text: string; explanation: string; options: EditableOption[] };
@@ -35,17 +42,31 @@ export function QuestionAccordion({
   const [openId, setOpenId] = useState<string | 'new' | null>(null);
   const [edit, setEdit] = useState<EditState>(toEditState());
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [history, setHistory] = useState<QuestionHistoryStats | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const historyRequestRef = useRef(0);
 
   function openExisting(q: QuestionWithOptions) {
     setOpenId(q.id);
     setEdit(toEditState(q));
     setSaveError(null);
+    setHistory(null);
+    setHistoryLoading(true);
+    const requestId = ++historyRequestRef.current;
+    getQuestionHistory(q.id).then((stats) => {
+      // A stale response (user already switched to another row) is ignored.
+      if (historyRequestRef.current !== requestId) return;
+      setHistoryLoading(false);
+      setHistory(stats);
+    });
   }
 
   function openNew() {
     setOpenId('new');
     setEdit(toEditState());
     setSaveError(null);
+    setHistory(null);
+    historyRequestRef.current += 1;
   }
 
   function toggleCorrect(index: number) {
@@ -130,15 +151,18 @@ export function QuestionAccordion({
               >
                 <div className="overflow-hidden">
                   {openId === q.id && (
-                    <QuestionEditForm
-                      edit={edit}
-                      setEdit={setEdit}
-                      toggleCorrect={toggleCorrect}
-                      onSave={handleSave}
-                      onDelete={() => handleDelete(q.id)}
-                      onCancel={() => setOpenId(null)}
-                      error={saveError}
-                    />
+                    <>
+                      <QuestionHistorySummary loading={historyLoading} stats={history} />
+                      <QuestionEditForm
+                        edit={edit}
+                        setEdit={setEdit}
+                        toggleCorrect={toggleCorrect}
+                        onSave={handleSave}
+                        onDelete={() => handleDelete(q.id)}
+                        onCancel={() => setOpenId(null)}
+                        error={saveError}
+                      />
+                    </>
                   )}
                 </div>
               </div>
@@ -164,6 +188,47 @@ export function QuestionAccordion({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function formatHistoryDate(value: Date): string {
+  return new Date(value).toLocaleDateString('vi-VN');
+}
+
+/** Per-question answer history: how many times it's been attempted, the
+ * correct/wrong split, and a chronological dot timeline (oldest → newest)
+ * so a student can see whether they're actually improving on this question. */
+function QuestionHistorySummary({ loading, stats }: { loading: boolean; stats: QuestionHistoryStats | null }) {
+  if (loading) {
+    return <p className="border-b border-bg bg-bg px-4 py-2 text-xs text-ink-muted">Đang tải lịch sử...</p>;
+  }
+  if (!stats || stats.totalAttempts === 0) {
+    return <p className="border-b border-bg bg-bg px-4 py-2 text-xs text-ink-muted">Chưa từng làm câu này.</p>;
+  }
+
+  const recent = stats.entries.slice(-10);
+  const last = stats.entries[stats.entries.length - 1];
+
+  return (
+    <div className="border-b border-bg bg-bg px-4 py-2 text-xs text-ink-muted">
+      <p>
+        Đã làm {stats.totalAttempts} lần · Đúng {stats.correctCount} · Sai {stats.wrongCount}
+        {last && ` · Gần nhất: ${formatHistoryDate(last.answeredAt)} (${last.isCorrect ? 'đúng' : 'sai'})`}
+      </p>
+      <div className="mt-1.5 flex gap-1">
+        {recent.map((entry, i) => (
+          <span
+            key={i}
+            title={`${formatHistoryDate(entry.answeredAt)}: ${entry.isCorrect ? 'Đúng' : 'Sai'}`}
+            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white ${
+              entry.isCorrect ? 'bg-success' : 'bg-danger'
+            }`}
+          >
+            {entry.isCorrect ? '✓' : '✗'}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

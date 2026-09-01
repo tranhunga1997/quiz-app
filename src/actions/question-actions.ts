@@ -2,6 +2,7 @@
 
 import type { PrismaClient } from '@prisma/client';
 import { prisma } from '../lib/db';
+import { getQuestionHistoryStats, type QuestionHistoryStats } from '../lib/questionHistory';
 
 export type QuestionInput = {
   text: string;
@@ -84,4 +85,10 @@ export async function deleteQuestion(questionId: string): Promise<void> {
 
 export async function setQuestionFlag(questionId: string, flagged: boolean): Promise<void> {
   return setQuestionFlagCore(prisma, questionId, flagged);
+}
+
+/** Fetched on-demand when a question's accordion row is expanded — not eagerly for
+ * every question on deck load, since most rows are never opened in a given visit. */
+export async function getQuestionHistory(questionId: string): Promise<QuestionHistoryStats> {
+  return getQuestionHistoryStats(prisma, questionId);
 }
