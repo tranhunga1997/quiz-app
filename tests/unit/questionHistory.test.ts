@@ -85,4 +85,24 @@ describe('getQuestionHistoryStats', () => {
     expect(stats.totalAttempts).toBe(1);
     expect(stats.entries).toHaveLength(1);
   });
+
+  it('counts an answer from an attempt that was never finished (abandoned mid-quiz)', async () => {
+    // Locks in the deliberate behavior described in getQuestionHistoryStats's doc
+    // comment: per-question history is a per-answer concept, independent of whether
+    // the session it was submitted in was ever completed.
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const { deck, question } = await seedQuestion(db.prisma);
+    const abandonedAttempt = await db.prisma.attempt.create({
+      data: { deckId: deck.id, mode: 'NORMAL', totalQuestions: 1, correctCount: 0 },
+    });
+    await db.prisma.attemptAnswer.create({
+      data: { attemptId: abandonedAttempt.id, questionId: question.id, selectedOptionIds: '[]', isCorrect: false },
+    });
+
+    const stats = await getQuestionHistoryStats(db.prisma, question.id);
+
+    expect(stats.totalAttempts).toBe(1);
+    expect(stats.wrongCount).toBe(1);
+  });
 });

@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-export type QuestionHistoryEntry = { answeredAt: Date; isCorrect: boolean };
+type QuestionHistoryEntry = { answeredAt: Date; isCorrect: boolean };
 
 export type QuestionHistoryStats = {
   totalAttempts: number;
@@ -10,6 +10,12 @@ export type QuestionHistoryStats = {
   entries: QuestionHistoryEntry[];
 };
 
+/** Answers from attempts that were never finished (browser closed mid-quiz) are
+ * deliberately still counted here — an answer was genuinely submitted regardless of
+ * whether the session was ever completed, and per-question history is a per-answer,
+ * not per-session, concept. (This is why lib/deckHistory.ts — which lists completed
+ * *sessions* — filters on finishedAt: { not: null }, while this does not; mirrors the
+ * same deliberate choice in lib/review.ts's fetchQuestionStats.) */
 export async function getQuestionHistoryStats(client: PrismaClient, questionId: string): Promise<QuestionHistoryStats> {
   const answers = await client.attemptAnswer.findMany({
     where: { questionId },

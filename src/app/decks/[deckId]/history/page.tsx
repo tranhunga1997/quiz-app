@@ -1,23 +1,20 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
-import { getDeckAttemptHistory, type DeckAttemptSummary } from '@/lib/deckHistory';
+import { getDeckAttemptHistory } from '@/lib/deckHistory';
+import { MODE_LABEL } from '@/lib/quizMode';
+import { formatVietnameseDate } from '@/lib/formatDate';
+import { getScoreTier, type ScoreTier } from '@/lib/scoring';
 import { Breadcrumb } from '@/components/Breadcrumb';
 
-const MODE_LABEL: Record<DeckAttemptSummary['mode'], string> = {
-  NORMAL: 'Làm bài',
-  REVIEW: 'Ôn tập',
-  FLAGGED: 'Câu đã đánh dấu',
+const TIER_BAR_CLASS: Record<ScoreTier, string> = {
+  success: 'bg-success',
+  warning: 'bg-warning-text',
+  danger: 'bg-danger',
 };
 
-function formatDate(value: Date): string {
-  return new Date(value).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
 function scoreBarColor(percent: number): string {
-  if (percent >= 80) return 'bg-success';
-  if (percent >= 50) return 'bg-warning-text';
-  return 'bg-danger';
+  return TIER_BAR_CLASS[getScoreTier(percent)];
 }
 
 export default async function DeckHistoryPage({ params }: { params: { deckId: string } }) {
@@ -79,7 +76,7 @@ export default async function DeckHistoryPage({ params }: { params: { deckId: st
                 <span className="w-6 shrink-0 text-xs font-semibold text-ink-muted">#{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">
-                    {formatDate(attempt.finishedAt)} · {MODE_LABEL[attempt.mode]}
+                    {formatVietnameseDate(attempt.finishedAt)} · {MODE_LABEL[attempt.mode]}
                   </p>
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-track">
                     <div

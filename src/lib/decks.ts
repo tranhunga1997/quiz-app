@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
-import { getReviewCandidates } from './review';
+import { getReviewDueCountsByDeck } from './review';
+import type { QuestionType } from './questionType';
 
 export type DeckListItem = {
   id: string;
@@ -11,7 +12,7 @@ export type DeckListItem = {
 export type QuestionWithOptions = {
   id: string;
   text: string;
-  type: 'SINGLE' | 'MULTI';
+  type: QuestionType;
   explanation: string | null;
   flagged: boolean;
   options: { id: string; text: string; isCorrect: boolean; order: number }[];
@@ -23,21 +24,24 @@ export type DeckWithQuestions = {
   questions: QuestionWithOptions[];
 };
 
+/** One query for every deck passed in (via getReviewDueCountsByDeck), not one query
+ * per deck — this used to call getReviewCandidates once per deck, an N+1 that scaled
+ * with the whole deck library on every home-page load (listDecksDue scans all decks
+ * unconditionally). */
 async function attachStats(
   client: PrismaClient,
   decks: { id: string; name: string; _count: { questions: number } }[]
 ): Promise<DeckListItem[]> {
-  return Promise.all(
-    decks.map(async (deck) => {
-      const reviewCandidates = await getReviewCandidates(client, deck.id);
-      return {
-        id: deck.id,
-        name: deck.name,
-        questionCount: deck._count.questions,
-        reviewDueCount: reviewCandidates.length,
-      };
-    })
+  const dueCounts = await getReviewDueCountsByDeck(
+    client,
+    decks.map((d) => d.id)
   );
+  return decks.map((deck) => ({
+    id: deck.id,
+    name: deck.name,
+    questionCount: deck._count.questions,
+    reviewDueCount: dueCounts.get(deck.id) ?? 0,
+  }));
 }
 
 /** Every deck with at least one question currently due for review — unpaginated,
@@ -91,7 +95,7 @@ export async function searchDeckNamesCore(client: PrismaClient, query: string): 
 export async function getDeckWithQuestions(client: PrismaClient, deckId: string): Promise<DeckWithQuestions | null> {
   const deck = await client.deck.findUnique({
     where: { id: deckId },
-    include: { questions: { include: { options: { orderBy: { order: 'asc' } } }, orderBy: { createdAt: 'asc' } } },
+    include: { questions: { include: { options: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } } },
   });
   if (!deck) return null;
 
@@ -101,7 +105,7 @@ export async function getDeckWithQuestions(client: PrismaClient, deckId: string)
     questions: deck.questions.map((q) => ({
       id: q.id,
       text: q.text,
-      type: q.type as 'SINGLE' | 'MULTI',
+      type: q.type as QuestionType,
       explanation: q.explanation,
       flagged: q.flagged,
       options: q.options,

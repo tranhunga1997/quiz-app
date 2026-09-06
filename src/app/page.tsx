@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Plus, BookOpen } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { listDecksDue, listDecksWithStats } from '@/lib/decks';
@@ -9,19 +10,40 @@ export const dynamic = 'force-dynamic';
 
 const PAGE_SIZE = 5;
 
+/** Parses the `?page=` param defensively: a non-integer, non-numeric, or missing value
+ * (a typo'd/hand-edited URL — nothing in this app's own UI ever generates one) falls
+ * back to 1 instead of producing a non-integer `page` that would reach Prisma's
+ * `skip`/`take` (which require an Int) and crash the whole page with a 500. */
+function parsePageParam(raw: string | undefined): number {
+  const parsed = Number.parseInt(raw ?? '1', 10);
+  if (!Number.isInteger(parsed) || parsed < 1) return 1;
+  return parsed;
+}
+
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: { q?: string; page?: string };
 }) {
   const query = searchParams.q ?? '';
-  const page = Math.max(1, Number(searchParams.page) || 1);
+  const requestedPage = parsePageParam(searchParams.page);
 
   const [decksDue, { decks, totalCount }] = await Promise.all([
     listDecksDue(prisma),
-    listDecksWithStats(prisma, { query, page, pageSize: PAGE_SIZE }),
+    listDecksWithStats(prisma, { query, page: requestedPage, pageSize: PAGE_SIZE }),
   ]);
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+  // requestedPage is beyond the last real page (e.g. a bookmarked link from before
+  // decks were deleted) — redirect to the last valid page instead of rendering a
+  // misleading "no decks" empty state with no way back.
+  if (requestedPage > totalPages && totalCount > 0) {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    params.set('page', String(totalPages));
+    redirect(`/?${params.toString()}`);
+  }
+  const page = requestedPage;
 
   return (
     <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl p-6">

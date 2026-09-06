@@ -24,6 +24,12 @@ model Question {
   type        String
   explanation String?
   flagged     Boolean         @default(false)
+  // Explicit creation order within the deck. NOT derivable from createdAt: a CSV
+  // import nested-creates every question in one Prisma call, so they all get the
+  // exact same now() timestamp (verified empirically — down to the millisecond) and
+  // `orderBy: createdAt` has no defined tiebreaker. This column is the real source
+  // of truth for "preserve import/creation order" (see quiz-actions.ts, lib/decks.ts).
+  order       Int             @default(0)
   createdAt   DateTime        @default(now())
   options     Option[]
   answers     AttemptAnswer[]

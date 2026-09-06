@@ -7,12 +7,14 @@ import { shuffleArray } from '../lib/shuffle';
 import { isAnswerCorrect } from '../lib/scoring';
 import { getReviewCandidates } from '../lib/review';
 
-export type QuizMode = 'NORMAL' | 'REVIEW' | 'FLAGGED';
+export type { QuizMode } from '../lib/quizMode';
+import type { QuizMode } from '../lib/quizMode';
+import type { QuestionType } from '../lib/questionType';
 
 export type QuizQuestion = {
   id: string;
   text: string;
-  type: 'SINGLE' | 'MULTI';
+  type: QuestionType;
   options: { id: string; text: string }[];
 };
 
@@ -39,6 +41,10 @@ export async function startQuizSessionCore(
     const candidates = await getReviewCandidates(client, deckId);
     questionIds = candidates.map((c) => c.questionId);
   } else if (mode === 'FLAGGED') {
+    // Flagged status is set manually (see setQuestionFlag) and is entirely independent
+    // of answer-correctness history — unlike REVIEW, a flagged question stays
+    // practiceable here even if its most recent answer was correct, and an
+    // always-correctly-answered question never appears here unless the user flags it.
     const flagged = await client.question.findMany({ where: { deckId, flagged: true }, select: { id: true } });
     questionIds = flagged.map((q) => q.id);
   }
@@ -48,7 +54,11 @@ export async function startQuizSessionCore(
     include: { options: { orderBy: { order: 'asc' } } },
     // Only meaningful when shuffleQuestions is false — a shuffle right after
     // makes any DB order irrelevant, so skip the explicit sort in that case.
-    ...(shuffleQuestions ? {} : { orderBy: { createdAt: 'asc' as const } }),
+    // Ordered by the explicit `order` column, NOT createdAt: a CSV import
+    // nested-creates every question in one Prisma call, so they all get the exact
+    // same now() timestamp and createdAt has no defined tiebreaker (verified
+    // empirically). See prisma/schema.prisma's Question.order doc comment.
+    ...(shuffleQuestions ? {} : { orderBy: { order: 'asc' as const } }),
   });
 
   // Question order respects shuffleQuestions; answer-option order within each
@@ -63,7 +73,7 @@ export async function startQuizSessionCore(
   const quizQuestions: QuizQuestion[] = selected.map((q) => ({
     id: q.id,
     text: q.text,
-    type: q.type as 'SINGLE' | 'MULTI',
+    type: q.type as QuestionType,
     options: shuffleArray(q.options).map((o) => ({ id: o.id, text: o.text })),
   }));
 
@@ -76,10 +86,18 @@ export async function submitAnswerCore(
   questionId: string,
   selectedOptionIds: string[]
 ): Promise<SubmitAnswerResult> {
-  const question = await client.question.findUniqueOrThrow({
-    where: { id: questionId },
-    include: { options: true },
-  });
+  const [question, attempt] = await Promise.all([
+    client.question.findUniqueOrThrow({ where: { id: questionId }, include: { options: true } }),
+    client.attempt.findUniqueOrThrow({ where: { id: attemptId } }),
+  ]);
+  // A question must belong to the same deck the attempt was started for — otherwise a
+  // caller could record an answer for a question from an unrelated deck under this
+  // attempt, corrupting that deck's scoring/review/history data (nothing else in this
+  // action validates that relationship, since attemptId and questionId are both
+  // client-supplied).
+  if (question.deckId !== attempt.deckId) {
+    throw new Error('Câu hỏi không thuộc bộ đề của lượt làm bài này');
+  }
   const correctOptionIds = question.options.filter((o) => o.isCorrect).map((o) => o.id);
   const correct = isAnswerCorrect(selectedOptionIds, correctOptionIds);
 
@@ -106,7 +124,7 @@ export async function finishQuizSessionCore(client: PrismaClient, attemptId: str
 
   await client.attempt.update({
     where: { id: attemptId },
-    data: { finishedAt: new Date(), correctCount },
+    data: { finishedAt: new Date(), correctCount, totalQuestions },
   });
 
   return { correctCount, totalQuestions };

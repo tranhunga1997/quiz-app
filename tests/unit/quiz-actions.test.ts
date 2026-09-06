@@ -60,28 +60,55 @@ describe('quiz-actions', () => {
     expect(attempt?.totalQuestions).toBe(2);
   });
 
-  it('startQuizSessionCore preserves creation order when shuffleQuestions is false', async () => {
+  it('startQuizSessionCore preserves explicit order when shuffleQuestions is false', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;
     const deck = await db.prisma.deck.create({ data: { name: 'D' } });
-    async function makeQuestion(text: string, createdAt: Date) {
+    async function makeQuestion(text: string, order: number) {
       return db.prisma.question.create({
         data: {
           deckId: deck.id,
           text,
           type: 'SINGLE',
-          createdAt,
+          order,
           options: { create: [{ text: 'A', isCorrect: true, order: 1 }] },
         },
       });
     }
-    const q1 = await makeQuestion('First', new Date('2026-01-01'));
-    const q2 = await makeQuestion('Second', new Date('2026-01-02'));
-    const q3 = await makeQuestion('Third', new Date('2026-01-03'));
+    const q1 = await makeQuestion('First', 0);
+    const q2 = await makeQuestion('Second', 1);
+    const q3 = await makeQuestion('Third', 2);
 
     const { questions } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL', false);
 
     expect(questions.map((q) => q.id)).toEqual([q1.id, q2.id, q3.id]);
+  });
+
+  it('preserves order even when every question shares the exact same createdAt (realistic CSV-import case)', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    // A single nested-create call — exactly what CSV import does — gives every row the
+    // *exact same* createdAt, because Prisma computes now() once for the whole write.
+    // This is the real bug: orderBy: createdAt has no defined tiebreaker for these rows.
+    const deck = await db.prisma.deck.create({
+      data: {
+        name: 'D',
+        questions: {
+          create: [
+            { text: 'First', type: 'SINGLE', order: 0, options: { create: [{ text: 'A', isCorrect: true, order: 1 }] } },
+            { text: 'Second', type: 'SINGLE', order: 1, options: { create: [{ text: 'A', isCorrect: true, order: 1 }] } },
+            { text: 'Third', type: 'SINGLE', order: 2, options: { create: [{ text: 'A', isCorrect: true, order: 1 }] } },
+          ],
+        },
+      },
+      include: { questions: true },
+    });
+    const distinctTimestamps = new Set(deck.questions.map((q) => q.createdAt.getTime()));
+    expect(distinctTimestamps.size).toBe(1); // confirms the tie actually happened
+
+    const { questions } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL', false);
+
+    expect(questions.map((q) => q.text)).toEqual(['First', 'Second', 'Third']);
   });
 
   it('submitAnswerCore records a correct answer and returns the correct option ids', async () => {
@@ -130,7 +157,30 @@ describe('quiz-actions', () => {
     expect(result.totalQuestions).toBe(2);
     const attempt = await db.prisma.attempt.findUnique({ where: { id: attemptId } });
     expect(attempt?.correctCount).toBe(1);
+    expect(attempt?.totalQuestions).toBe(2);
     expect(attempt?.finishedAt).not.toBeNull();
+  });
+
+  it("submitAnswerCore rejects a questionId that doesn't belong to the attempt's deck", async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await seedDeck(db.prisma);
+    const otherDeck = await db.prisma.deck.create({
+      data: {
+        name: 'Other',
+        questions: {
+          create: [
+            { text: 'OtherQ', type: 'SINGLE', options: { create: [{ text: 'A', isCorrect: true, order: 1 }] } },
+          ],
+        },
+      },
+      include: { questions: true },
+    });
+    const { attemptId } = await startQuizSessionCore(db.prisma, deck.id, 'NORMAL');
+
+    await expect(
+      submitAnswerCore(db.prisma, attemptId, otherDeck.questions[0].id, [])
+    ).rejects.toThrow('Câu hỏi không thuộc bộ đề của lượt làm bài này');
   });
 
   it('a REVIEW session only includes questions the deck has answered wrong before', async () => {

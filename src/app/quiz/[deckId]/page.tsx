@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { getReviewCandidates } from '@/lib/review';
-import { type QuizMode } from '@/actions/quiz-actions';
+import { type QuizMode, MODE_LABEL } from '@/lib/quizMode';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { QuizRunner } from './QuizRunner';
 
@@ -10,12 +10,6 @@ function parseMode(raw: string | undefined): QuizMode {
   if (raw === 'flagged') return 'FLAGGED';
   return 'NORMAL';
 }
-
-const MODE_LABEL: Record<QuizMode, string> = {
-  NORMAL: 'Làm bài',
-  REVIEW: 'Ôn tập',
-  FLAGGED: 'Câu đã đánh dấu',
-};
 
 export default async function QuizPage({
   params,

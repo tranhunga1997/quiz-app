@@ -3,6 +3,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { prisma } from '../lib/db';
 import { getQuestionHistoryStats, type QuestionHistoryStats } from '../lib/questionHistory';
+import type { QuestionType } from '../lib/questionType';
 
 export type QuestionInput = {
   text: string;
@@ -10,9 +11,28 @@ export type QuestionInput = {
   options: { text: string; isCorrect: boolean }[];
 };
 
-function deriveTypeAndValidate(input: QuestionInput): 'SINGLE' | 'MULTI' {
+const MAX_QUESTION_TEXT_LENGTH = 2000;
+const MAX_OPTION_TEXT_LENGTH = 500;
+const MAX_EXPLANATION_LENGTH = 5000;
+
+function deriveTypeAndValidate(input: QuestionInput): QuestionType {
+  if (!input.text.trim()) {
+    throw new Error('Nội dung câu hỏi không được để trống');
+  }
+  if (input.text.length > MAX_QUESTION_TEXT_LENGTH) {
+    throw new Error(`Nội dung câu hỏi quá dài (tối đa ${MAX_QUESTION_TEXT_LENGTH} ký tự)`);
+  }
+  if (input.explanation && input.explanation.length > MAX_EXPLANATION_LENGTH) {
+    throw new Error(`Giải thích quá dài (tối đa ${MAX_EXPLANATION_LENGTH} ký tự)`);
+  }
   if (input.options.length !== 4) {
     throw new Error('Phải có đúng 4 lựa chọn');
+  }
+  if (input.options.some((o) => !o.text.trim())) {
+    throw new Error('Mỗi lựa chọn phải có nội dung');
+  }
+  if (input.options.some((o) => o.text.length > MAX_OPTION_TEXT_LENGTH)) {
+    throw new Error(`Nội dung lựa chọn quá dài (tối đa ${MAX_OPTION_TEXT_LENGTH} ký tự)`);
   }
   const correctCount = input.options.filter((o) => o.isCorrect).length;
   if (correctCount === 0) {
@@ -27,12 +47,16 @@ export async function addQuestionCore(
   input: QuestionInput
 ): Promise<{ id: string }> {
   const type = deriveTypeAndValidate(input);
+  // Appends at the end of the deck's existing order — see prisma/schema.prisma's
+  // Question.order doc comment for why this can't be derived from createdAt.
+  const order = await client.question.count({ where: { deckId } });
   const question = await client.question.create({
     data: {
       deckId,
       text: input.text,
       type,
       explanation: input.explanation,
+      order,
       options: {
         create: input.options.map((o, i) => ({ text: o.text, isCorrect: o.isCorrect, order: i + 1 })),
       },

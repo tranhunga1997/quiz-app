@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { createTestDb } from '../testDb';
-import { importDeck } from '../../src/actions/import-actions';
+import { importDeckCore } from '../../src/actions/import-actions';
 
-describe('importDeck', () => {
+describe('importDeckCore', () => {
   let cleanup: () => void;
   afterEach(() => cleanup?.());
 
@@ -14,7 +14,7 @@ describe('importDeck', () => {
       'Q1?,A,B,C,D,1,exp1\n' +
       'Q2?,A,B,C,D,1;3,';
 
-    const result = await importDeck(db.prisma, 'My Deck', 'my-deck.csv', csv);
+    const result = await importDeckCore(db.prisma, 'My Deck', 'my-deck.csv', csv);
 
     expect(result).toMatchObject({ ok: true, importedCount: 2, errors: [] });
     if (!result.ok) throw new Error('expected ok result');
@@ -45,7 +45,7 @@ describe('importDeck', () => {
       'Good?,A,B,C,D,1\n' +
       ',A,B,C,D,1';
 
-    const result = await importDeck(db.prisma, 'Mixed Deck', 'mixed.csv', csv);
+    const result = await importDeckCore(db.prisma, 'Mixed Deck', 'mixed.csv', csv);
 
     expect(result).toMatchObject({
       ok: true,
@@ -59,10 +59,47 @@ describe('importDeck', () => {
     cleanup = db.cleanup;
     const csv = 'question,option1,option2,option3,option4,correct\n' + ',A,B,C,D,1';
 
-    const result = await importDeck(db.prisma, 'Empty Deck', 'empty.csv', csv);
+    const result = await importDeckCore(db.prisma, 'Empty Deck', 'empty.csv', csv);
 
     expect(result.ok).toBe(false);
     const decks = await db.prisma.deck.findMany();
     expect(decks).toHaveLength(0);
+  });
+
+  it('assigns each question an order matching its CSV row order', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const csv =
+      'question,option1,option2,option3,option4,correct\n' +
+      'First?,A,B,C,D,1\n' +
+      'Second?,A,B,C,D,1\n' +
+      'Third?,A,B,C,D,1';
+
+    const result = await importDeckCore(db.prisma, 'Ordered Deck', 'ordered.csv', csv);
+    if (!result.ok) throw new Error('expected ok result');
+
+    const questions = await db.prisma.question.findMany({ where: { deckId: result.deckId }, orderBy: { order: 'asc' } });
+    expect(questions.map((q) => q.text)).toEqual(['First?', 'Second?', 'Third?']);
+    expect(questions.map((q) => q.order)).toEqual([0, 1, 2]);
+  });
+
+  it('rejects a blank deck name', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const csv = 'question,option1,option2,option3,option4,correct\n' + 'Q?,A,B,C,D,1';
+
+    const result = await importDeckCore(db.prisma, '   ', 'file.csv', csv);
+
+    expect(result).toEqual({ ok: false, error: 'Tên bộ đề không được để trống.' });
+  });
+
+  it('rejects a deck name over the length cap', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const csv = 'question,option1,option2,option3,option4,correct\n' + 'Q?,A,B,C,D,1';
+
+    const result = await importDeckCore(db.prisma, 'x'.repeat(201), 'file.csv', csv);
+
+    expect(result.ok).toBe(false);
   });
 });

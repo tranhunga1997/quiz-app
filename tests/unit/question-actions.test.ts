@@ -62,6 +62,53 @@ describe('question-actions', () => {
     ).rejects.toThrow('Phải có ít nhất 1 đáp án đúng');
   });
 
+  it('addQuestionCore rejects input with a number of options other than 4', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+
+    await expect(
+      addQuestionCore(db.prisma, deck.id, { ...validInput, options: validInput.options.slice(0, 3) })
+    ).rejects.toThrow('Phải có đúng 4 lựa chọn');
+  });
+
+  it('addQuestionCore rejects blank question text', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+
+    await expect(
+      addQuestionCore(db.prisma, deck.id, { ...validInput, text: '   ' })
+    ).rejects.toThrow('Nội dung câu hỏi không được để trống');
+  });
+
+  it('addQuestionCore rejects a blank option', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+
+    await expect(
+      addQuestionCore(db.prisma, deck.id, {
+        ...validInput,
+        options: [{ text: '  ', isCorrect: true }, ...validInput.options.slice(1)],
+      })
+    ).rejects.toThrow('Mỗi lựa chọn phải có nội dung');
+  });
+
+  it('addQuestionCore assigns each new question the next order within its deck', async () => {
+    const db = createTestDb();
+    cleanup = db.cleanup;
+    const deck = await db.prisma.deck.create({ data: { name: 'D' } });
+
+    const first = await addQuestionCore(db.prisma, deck.id, validInput);
+    const second = await addQuestionCore(db.prisma, deck.id, validInput);
+
+    const q1 = await db.prisma.question.findUniqueOrThrow({ where: { id: first.id } });
+    const q2 = await db.prisma.question.findUniqueOrThrow({ where: { id: second.id } });
+    expect(q1.order).toBe(0);
+    expect(q2.order).toBe(1);
+  });
+
   it('updateQuestionCore replaces text, explanation, and options', async () => {
     const db = createTestDb();
     cleanup = db.cleanup;

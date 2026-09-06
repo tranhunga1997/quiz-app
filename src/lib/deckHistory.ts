@@ -1,9 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 import { calculateScorePercent } from './scoring';
+import type { QuizMode } from './quizMode';
 
 export type DeckAttemptSummary = {
   id: string;
-  mode: 'NORMAL' | 'REVIEW' | 'FLAGGED';
+  mode: QuizMode;
   startedAt: Date;
   finishedAt: Date;
   correctCount: number;
@@ -22,7 +23,7 @@ export async function getDeckAttemptHistory(client: PrismaClient, deckId: string
 
   return attempts.map((attempt) => ({
     id: attempt.id,
-    mode: attempt.mode as 'NORMAL' | 'REVIEW' | 'FLAGGED',
+    mode: attempt.mode as QuizMode,
     startedAt: attempt.startedAt,
     finishedAt: attempt.finishedAt as Date,
     correctCount: attempt.correctCount,

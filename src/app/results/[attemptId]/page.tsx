@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Clock, RotateCcw, Flame, Home } from 'lucide-react';
 import { prisma } from '@/lib/db';
-import { calculateScorePercent } from '@/lib/scoring';
+import { calculateScorePercent, getScoreTier, type ScoreTier } from '@/lib/scoring';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { ResultDetails } from './ResultDetails';
 
@@ -13,6 +13,14 @@ function formatDuration(ms: number): string {
   if (minutes === 0) return `${seconds} giây`;
   return `${minutes} phút ${seconds} giây`;
 }
+
+// Same 80%/50% classification the deck-history page's score bars use — previously
+// this ring was hardcoded to the success color regardless of the actual score.
+const TIER_CSS_VAR: Record<ScoreTier, string> = {
+  success: '--color-success',
+  warning: '--color-warning-text',
+  danger: '--color-danger-text',
+};
 
 export default async function ResultsPage({ params }: { params: { attemptId: string } }) {
   const attempt = await prisma.attempt.findUnique({
@@ -49,7 +57,9 @@ export default async function ResultsPage({ params }: { params: { attemptId: str
       />
       <div
         className="mx-auto mb-4 flex h-28 w-28 items-center justify-center rounded-full shadow-card"
-        style={{ background: `conic-gradient(rgb(var(--color-success)) ${scorePercent}%, rgb(var(--color-track)) 0)` }}
+        style={{
+          background: `conic-gradient(rgb(var(${TIER_CSS_VAR[getScoreTier(scorePercent)]})) ${scorePercent}%, rgb(var(--color-track)) 0)`,
+        }}
       >
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface text-xl font-extrabold text-ink">
           {scorePercent}%

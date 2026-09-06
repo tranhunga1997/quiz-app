@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Download, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { parseQuizCsv, type CsvParseResult } from '@/lib/csv';
-import { submitImport } from '@/actions/import-server-action';
+import { importDeck } from '@/actions/import-actions';
 
 export function ImportForm() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export function ImportForm() {
   async function handleConfirm() {
     if (!csvText || !fileName || !preview || preview.validRows.length === 0) return;
     setSubmitting(true);
-    const result = await submitImport(deckName, fileName, csvText);
+    const result = await importDeck(deckName, fileName, csvText);
     setSubmitting(false);
     if (!result.ok) {
       setSubmitError(result.error);

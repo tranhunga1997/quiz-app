@@ -130,4 +130,52 @@ describe('parseQuizCsv', () => {
       { rowNumber: 0, reason: 'Thiếu cột bắt buộc: option2, option3, option4, correct' },
     ]);
   });
+
+  it('reports a row with a duplicated correct index instead of silently accepting it', () => {
+    const csv = 'question,option1,option2,option3,option4,correct\n' + 'Q?,A,B,C,D,1;1';
+
+    const result = parseQuizCsv(csv);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([
+      { rowNumber: 1, reason: 'Cột correct không hợp lệ: "1;1" (chỉ nhận 1-4, phân tách bằng ";")' },
+    ]);
+  });
+
+  it('rejects a question whose text exceeds the max length', () => {
+    const csv = 'question,option1,option2,option3,option4,correct\n' + `${'x'.repeat(2001)},A,B,C,D,1`;
+
+    const result = parseQuizCsv(csv);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([{ rowNumber: 1, reason: 'Nội dung câu hỏi quá dài (tối đa 2000 ký tự)' }]);
+  });
+
+  it('rejects an option whose text exceeds the max length', () => {
+    const csv = 'question,option1,option2,option3,option4,correct\n' + `Q?,${'x'.repeat(501)},B,C,D,1`;
+
+    const result = parseQuizCsv(csv);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([{ rowNumber: 1, reason: 'Lựa chọn option1 quá dài (tối đa 500 ký tự)' }]);
+  });
+
+  it('rejects an explanation that exceeds the max length', () => {
+    const csv = 'question,option1,option2,option3,option4,correct,explanation\n' + `Q?,A,B,C,D,1,${'x'.repeat(5001)}`;
+
+    const result = parseQuizCsv(csv);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([{ rowNumber: 1, reason: 'Giải thích quá dài (tối đa 5000 ký tự)' }]);
+  });
+
+  it('rejects a file with more than the max number of rows', () => {
+    const header = 'question,option1,option2,option3,option4,correct\n';
+    const rows = Array.from({ length: 2001 }, (_, i) => `Q${i}?,A,B,C,D,1`).join('\n');
+
+    const result = parseQuizCsv(header + rows);
+
+    expect(result.validRows).toHaveLength(0);
+    expect(result.errors).toEqual([{ rowNumber: 0, reason: 'File có quá nhiều dòng (tối đa 2000 dòng)' }]);
+  });
 });
